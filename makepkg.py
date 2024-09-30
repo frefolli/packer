@@ -39,8 +39,8 @@ def assemble_package(pkgbuild_file: PkgbuildFile, source_file: SourceFile, info:
   build_dir = os.path.expanduser('~/makepkg/builds')
   package_file = find_pkg(info)
   if package_file is None or refresh:
-    utils.system("ln -sf %s builds/PKGBUILD" % pkgbuild_file)
-    utils.system("ln -sf %s builds/sources.tar.gz" % source_file)
+    utils.system("ln -sf %s %s/PKGBUILD" % (pkgbuild_file, build_dir))
+    utils.system("ln -sf %s %s/sources.tar.gz" % (source_file, build_dir))
     utils.system("makepkg --sign -D %s" % build_dir)
     package_file = find_pkg(info)
   assert package_file is not None
