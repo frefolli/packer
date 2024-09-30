@@ -1,0 +1,35 @@
+AutoReq:        no
+Name:           {{ name }}
+Version:        {{ version }}
+Release:        1
+BuildArch:      x86_64
+Summary:        {{ summary }}
+License:        MIT
+Source:         {{ name }}.tar.gz
+Requires:       {% for pkg in depends %} {{ pkg }} {% endfor %}
+
+Url: {{ url }}
+Prefix: /usr
+
+%description
+{{ summary }}
+
+%prep
+%setup -n {{ name }}-master
+
+%install
+# reset buildroot
+rm -rf $RPM_BUILD_ROOT
+mkdir -p $RPM_BUILD_ROOT
+make PREFIX=/usr LIBDIR=/usr/lib64
+make install PREFIX=/usr LIBDIR=/usr/lib64 DESTDIR=$RPM_BUILD_ROOT
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+/*
+
+%changelog
+* Sat Aug 03 2024 Refolli Francesco <frefolli@campus.unimib.it> - {{ version }}
+- Created a RPM Package for this Library

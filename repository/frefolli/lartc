@@ -1,0 +1,6 @@
+version: 1.0.0
+license: GPL-3.0
+summary: Compiler for Lart Programming Language
+depends:
+ arch: tree-sitter-lart tree-sitter-c
+ fedora: tree-sitter-lart tree-sitter-c

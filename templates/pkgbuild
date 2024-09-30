@@ -1,0 +1,21 @@
+# Contributor & Maintainer: Refolli Francesco <francesco.refolli@gmail.com>
+pkgname={{ name }}
+pkgver={{ version }}
+pkgrel=1
+pkgdesc='{{ summary }}'
+license=('{{ license }}')
+arch=('x86_64')
+makedepends=({% for pkg in makedepends %} {{ "'%s'" % pkg }} {% endfor %})
+depends=({% for pkg in depends %} {{ "'%s'" % pkg }} {% endfor %})
+url={{ url }}
+source=('sources.tar.gz')
+sha256sums=('{{ hash }}')
+build() {
+  cd $pkgname-master
+  make PREFIX=/usr LIBDIR=/usr/lib
+}
+package() {
+  cd $pkgname-master
+  make install PREFIX=/usr LIBDIR=/usr/lib DESTDIR=$pkgdir
+}
+options=(!debug)
