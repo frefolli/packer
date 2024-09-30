@@ -23,6 +23,8 @@ At runtime you select (-b) the build system  and (-d) the distro you are using. 
 python -m main frefolli/lartc -d fedora -b rpmbuild -r
 ```
 
+Packer will also sign the crafted package, so make sure to config makepkg/rpmbuild to use your GPG keys.
+
 # As for now
 
 For now, `makedepends` isn't used and only `rpmbuild` and `makepkg` are supported.
