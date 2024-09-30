@@ -17,7 +17,11 @@ depends:
 Packer will attempt to download a `Packerfile` from the repo if it exists, archive it and use it.
 
 `depends` and `makedepends` fields list packages which are required prior to the installation or prior to the building of that package. Since these are references to specific linux distro packages, it's required to fill it for you distro.
-At runtime you select (-b) the build system  and (-d) the distro you are using.
+At runtime you select (-b) the build system  and (-d) the distro you are using. Using (-r) flag will cause Packer to discard already cached config/sources and packages already crafted.
+
+```bash
+python -m main frefolli/lartc -d fedora -b rpmbuild -r
+```
 
 # As for now
 
