@@ -21,7 +21,7 @@ def download_source(info: dict[str, str], refresh: bool) -> SourceFile:
   return filepath
 
 def find_pkg(info: dict[str, str]) -> PackageFile:
-  pkgid = "%s-" % info["name"]
+  pkgid = "%s-%s" % (info["name"], info["version"])
   pkgdir = os.path.expanduser("~/rpmbuild/RPMS/x86_64")
   for file in os.listdir(pkgdir):
     if pkgid in file:

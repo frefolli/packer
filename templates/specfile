@@ -25,12 +25,12 @@ rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT
 make PREFIX=/usr LIBDIR=/usr/lib64
 make install PREFIX=/usr LIBDIR=/usr/lib64 DESTDIR=$RPM_BUILD_ROOT
+find $RPM_BUILD_ROOT -type f,l | sed "s|^$RPM_BUILD_ROOT|/|" > .extra_files
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%files
-/*
+%files -f .extra_files
 
 %changelog
 * Sat Aug 03 2024 Refolli Francesco <frefolli@campus.unimib.it> - {{ version }}

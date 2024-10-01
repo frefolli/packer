@@ -3,4 +3,4 @@ license: MIT
 summary: Tree Sitter Parser for C
 depends:
   arch: tree-sitter tree-sitter-cli
-  fedora: tree-sitter tree-sitter-cli
+  fedora: libtree-sitter tree-sitter-cli

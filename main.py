@@ -7,12 +7,12 @@ import sys
 import os
 
 def default_or_fail(rec: dict[str, str], access: str, key: str, value, strict_mode: bool) -> dict[str, str]:
-  rec[key] = rec[access].get(key)
-  if rec[key] is None:
+  rec[access] = rec[access].get(key)
+  if rec[access] is None:
     if strict_mode:
       raise ValueError("missing key '%s' inside '%s'" % (key, access))
     else:
-      rec[key] = value
+      rec[access] = value
   return rec
 
 if __name__ == "__main__":
@@ -30,8 +30,9 @@ if __name__ == "__main__":
   for package in args.packages:
     group, name = package.split('/')
     info = repository.get_package_info(group, name)
-    default_or_fail(info, "depends", args.distro, [], args.strict)
-    default_or_fail(info, "makedepends", args.distro, [], args.strict)
+    info = default_or_fail(info, "depends", args.distro, [], args.strict)
+    info = default_or_fail(info, "makedepends", args.distro, [], args.strict)
+    print(info)
 
     if args.builder == "rpmbuild":
       rpmbuild.craft(info, args.refresh)
