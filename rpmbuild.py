@@ -7,7 +7,7 @@ PackageFile=str
 
 def craft_spec(info: dict[str, str], refresh: bool) -> SpecFile:
   template = utils.acquire_template('specfile')
-  spec = template.render(**info)
+  spec = template.render(**info, len=len)
   filepath = os.path.expanduser("~/rpmbuild/SPECS/%s.spec" % info["name"])
   with open(filepath, mode="w") as file:
     file.write(spec)

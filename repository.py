@@ -11,9 +11,9 @@ def get_packerfile(group: str, name: str) -> str:
 def download_packerfile(group: str, name: str) -> str:
   packerfile = get_packerfile(group, name)
   groupdir = get_groupdir(group)
-  url = "https://github.com/%s/%s/blob/master/Packerfile" % (group, name)
+  url = "https://raw.githubusercontent.com/%s/%s/refs/heads/master/Packerfile" % (group, name)
   utils.system("mkdir -p %s" % groupdir)
-  if utils.system("wget %s -o %s" % (url, packerfile)) != 0:
+  if utils.system("wget %s -O %s" % (url, packerfile)) != 0:
     utils.system("rm %s" % packerfile)
     raise ValueError(packerfile)
   return packerfile
@@ -27,7 +27,7 @@ def get_package_info(group: str, name: str) -> dict[str, str]|None:
     info['group'] = group
     info['name'] = name
     if 'depends' not in info:
-      if 'makedepends' not in info:
+      if 'makedepends' in info:
         info['depends'] = {key:[] for key in info['makedepends']}
       else:
         info['depends'] = {}

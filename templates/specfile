@@ -6,7 +6,9 @@ BuildArch:      x86_64
 Summary:        {{ summary }}
 License:        MIT
 Source:         {{ name }}.tar.gz
+{% if len(depends) > 0 %}
 Requires:       {% for pkg in depends %} {{ pkg }} {% endfor %}
+{% endif %}
 
 Url: {{ url }}
 Prefix: /usr
