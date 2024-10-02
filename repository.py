@@ -41,6 +41,7 @@ def get_package_info(group: str, name: str) -> dict[str, str]|None:
       if isinstance(info['makedepends'][key], str):
         info['makedepends'][key] = info['makedepends'][key].strip().split(' ')
     info["url"] = "https://github.com/%s/%s" % (info["group"], info["name"])
+    info["refresh"] = False
     return info
 
 def default_or_fail(rec: dict[str, str], access: str, key: str, value, strict_mode: bool) -> dict[str, str]:

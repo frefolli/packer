@@ -2,18 +2,19 @@ import utils
 import hints
 import os
 
-def craft_spec(info: dict[str, str], refresh: bool) -> hints.SpecFile:
-  template = utils.acquire_template('specfile')
-  spec = template.render(**info, len=len)
+def craft_spec(info: dict[str, str]) -> hints.SpecFile:
   filepath = os.path.expanduser("~/rpmbuild/SPECS/%s.spec" % info["name"])
-  with open(filepath, mode="w") as file:
-    file.write(spec)
+  if not os.path.exists(filepath) or info["refresh"]:
+    template = utils.acquire_template('specfile')
+    spec = template.render(**info, len=len)
+    with open(filepath, mode="w") as file:
+      file.write(spec)
   return filepath
 
-def download_source(info: dict[str, str], refresh: bool) -> hints.SourceFile:
+def download_source(info: dict[str, str]) -> hints.SourceFile:
   target = "%s/archive/refs/heads/master.tar.gz" % info["url"]
   filepath = os.path.expanduser("~/rpmbuild/SOURCES/%s.tar.gz" % info["name"])
-  if not os.path.exists(filepath) or refresh:
+  if not os.path.exists(filepath) or info["refresh"]:
     utils.system("wget %s -O %s" % (target, filepath))
   return filepath
 
@@ -25,9 +26,9 @@ def find_pkg(info: dict[str, str]) -> hints.PackageFile:
       return os.path.join(pkgdir, file)
   return None
 
-def assemble_package(spec_file: hints.SpecFile, info: dict[str, str], refresh: bool) -> hints.PackageFile:
+def assemble_package(spec_file: hints.SpecFile, info: dict[str, str]) -> hints.PackageFile:
   package_file = find_pkg(info)
-  if package_file is None or refresh:
+  if package_file is None or info["refresh"]:
     utils.system("rpmbuild -bb %s" % spec_file)
     package_file = find_pkg(info)
   assert package_file is not None
@@ -37,9 +38,9 @@ def sign_package(package_file: hints.PackageFile) -> hints.PackageFile:
   utils.system("rpmsign --addsign %s" % package_file)
   return package_file
 
-def craft(info: dict[str, str], refresh: bool) -> hints.PackageFile:
+def craft(info: dict[str, str]) -> hints.PackageFile:
   utils.ensure_fields(info, ["name", "group", "version", "url", "depends"])
-  spec_file: hints.SpecFile = craft_spec(info, refresh)
-  source_file: hints.SourceFile = download_source(info, refresh)
-  package_file: hints.PackageFile = sign_package(assemble_package(spec_file, info, refresh))
+  spec_file: hints.SpecFile = craft_spec(info)
+  source_file: hints.SourceFile = download_source(info)
+  package_file: hints.PackageFile = sign_package(assemble_package(spec_file, info))
   return package_file

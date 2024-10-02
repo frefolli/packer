@@ -6,13 +6,11 @@ import hashlib
 def system(cmd: str) -> int:
   print("|>", cmd)
   out = os.system(cmd)
-  print("=> ", out)
   return out
 
 def getoutput(cmd: str) -> int:
   print("|>", cmd)
   out = subprocess.getoutput(cmd)
-  print("=> ", out)
   return out
 
 def ensure_dir(dirpath: str) -> str:

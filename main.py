@@ -16,6 +16,7 @@ if __name__ == "__main__":
   packages = []
   for package in args.packages:
     info = repository.acquire_package_info(package, args.strict)
+    info["refresh"] = args.refresh
     packages.append(info)
   passes = package_manager.compute_passes(packages, args.strict)
   last_stage = len(passes) - 1
@@ -24,6 +25,6 @@ if __name__ == "__main__":
     make_dependencies = package_manager.get_list_of_uninstalled_packages(make_dependencies)
     package_manager.install_dependencies(make_dependencies)
     for package in stage:
-      package_file = build_system.craft_package(package, args.refresh)
+      package_file = build_system.craft_package(package)
       if stage_index < last_stage or args.install:
         package_manager.install_dependencies([package_file])
