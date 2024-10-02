@@ -32,23 +32,42 @@ def identify_cross_dependencies(packages: list[dict[str, str]], strict_mode: boo
 
 def compute_passes(packages: list[dict[str, str]], strict_mode: bool) -> list[list[dict[str, str]]]:
   index_of_packages = identify_cross_dependencies(packages, strict_mode)
-  # This function should recognize dependencies in the form of <group>/<name> to other Packer's packages
-  # Thhis packages should be installed before the requirent because otherwise the user may be using old versions of such packages or worse he hasn't them
-  pass
+  max_length = max([_[1] for _ in index_of_packages.values()])
+  passes = [[] for _ in range(max_length+1)]
+  for package in index_of_packages.values():
+    passes[package[1]].append(package[0])
+  return passes
 
+# excludes Packer packages dependencies
 def extract_make_dependencies_to_install(packages: list[dict[str, str]]) -> list[str]:
   dependencies: dict[str, bool] = {}
   for package in packages:
-    dependencies.update({dependency:True for dependency in package['makedepends']})
+    dependencies.update({dependency_id:True for dependency_id in package['makedepends'] if not utils.in_packer_format(dependency_id)})
   return list(dependencies.keys())
 
 def install_dependencies(dependencies: list[str]):
-  match utils.get_package_manager():
-    case 'dnf':
-      dnf.install(dependencies)
-    case 'yum':
-      yum.install(dependencies)
-    case 'yay':
-      yay.install(dependencies)
-    case 'pacman':
-      pacman.install(dependencies)
+  assert isinstance(dependencies, list)
+  if len(dependencies) > 0:
+    match utils.get_package_manager():
+      case 'dnf':
+        return dnf.install(dependencies)
+      case 'yum':
+        return yum.install(dependencies)
+      case 'yay':
+        return yay.install(dependencies)
+      case 'pacman':
+        return pacman.install(dependencies)
+
+def check_which_packages_need_to_be_installed(dependencies: list[str]) -> list[str]:
+  assert isinstance(dependencies, list)
+  if len(dependencies) > 0:
+    match utils.get_package_manager():
+      case 'dnf':
+        return dnf.check_which_packages_need_to_be_installed(dependencies)
+      case 'yum':
+        return yum.check_which_packages_need_to_be_installed(dependencies)
+      case 'yay':
+        return yay.check_which_packages_need_to_be_installed(dependencies)
+      case 'pacman':
+        return pacman.check_which_packages_need_to_be_installed(dependencies)
+  return []

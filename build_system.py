@@ -1,7 +1,9 @@
 import rpmbuild
 import makepkg
+import utils
 
-def craft_package(info: dict[str, str], builder: str, refresh_mode: str) -> str:
+def craft_package(info: dict[str, str], refresh_mode: str) -> str:
+  builder = utils.get_build_system()
   if builder == "rpmbuild":
     return rpmbuild.craft(info, refresh_mode)
   elif builder == "makepkg":

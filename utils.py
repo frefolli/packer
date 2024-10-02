@@ -1,10 +1,19 @@
 import os
+import subprocess
 import jinja2
 import hashlib
 
 def system(cmd: str) -> int:
   print("|>", cmd)
-  return os.system(cmd)
+  out = os.system(cmd)
+  print("=> ", out)
+  return out
+
+def getoutput(cmd: str) -> int:
+  print("|>", cmd)
+  out = subprocess.getoutput(cmd)
+  print("=> ", out)
+  return out
 
 def ensure_dir(dirpath: str) -> str:
   dirpath = os.path.expanduser(dirpath)
@@ -53,6 +62,14 @@ def get_package_manager() -> str:
   ], prefix='/usr/bin')
   if package_manager is None:
     raise ValueError("unknown package manager")
+  return package_manager
+
+def get_build_system() -> str:
+  package_manager: str|None = first_which_exists(file_list=[
+    'makepkg', 'rpmbuild'
+  ], prefix='/usr/bin')
+  if package_manager is None:
+    raise ValueError("unknown build system")
   return package_manager
 
 def in_packer_format(package_id: str) -> bool:
