@@ -21,7 +21,7 @@ if __name__ == "__main__":
   last_stage = len(passes) - 1
   for (stage_index, stage) in enumerate(passes):
     make_dependencies = package_manager.extract_make_dependencies_to_install(stage)
-    make_dependencies = package_manager.check_which_packages_need_to_be_installed(make_dependencies)
+    make_dependencies = package_manager.get_list_of_uninstalled_packages(make_dependencies)
     package_manager.install_dependencies(make_dependencies)
     for package in stage:
       package_file = build_system.craft_package(package, args.refresh)

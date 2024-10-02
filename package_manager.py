@@ -58,16 +58,23 @@ def install_dependencies(dependencies: list[str]):
       case 'pacman':
         return pacman.install(dependencies)
 
-def check_which_packages_need_to_be_installed(dependencies: list[str]) -> list[str]:
+def get_list_of_installed_packages(dependencies: list[str]) -> list[str]:
   assert isinstance(dependencies, list)
   if len(dependencies) > 0:
     match utils.get_package_manager():
       case 'dnf':
-        return dnf.check_which_packages_need_to_be_installed(dependencies)
+        return dnf.get_list_of_installed_packages(dependencies)
       case 'yum':
-        return yum.check_which_packages_need_to_be_installed(dependencies)
+        return yum.get_list_of_installed_packages(dependencies)
       case 'yay':
-        return yay.check_which_packages_need_to_be_installed(dependencies)
+        return yay.get_list_of_installed_packages(dependencies)
       case 'pacman':
-        return pacman.check_which_packages_need_to_be_installed(dependencies)
+        return pacman.get_list_of_installed_packages(dependencies)
   return []
+
+
+def get_list_of_uninstalled_packages(packages: list[str]) -> list[str]:
+  packages = [package_id for package_id in packages if not utils.in_packer_format(package_id)]
+  installed_packages = get_list_of_installed_packages(packages)
+  not_installed_packages = [package_id for package_id in packages if package_id not in installed_packages]
+  return not_installed_packages
