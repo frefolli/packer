@@ -1,11 +1,8 @@
 import utils
+import hints
 import os
 
-PkgbuildFile=str
-SourceFile=str
-PackageFile=str
-
-def download_source(info: dict[str, str], refresh: bool) -> SourceFile:
+def download_source(info: dict[str, str], refresh: bool) -> hints.SourceFile:
   source_dir = os.path.expanduser('~/makepkg/sources')
   utils.ensure_dir(source_dir)
   target = "%s/archive/refs/heads/master.tar.gz" % info["url"]
@@ -16,7 +13,7 @@ def download_source(info: dict[str, str], refresh: bool) -> SourceFile:
   info["hash"] = utils.compute_hash(filepath)
   return filepath
 
-def craft_pkgbuild(info: dict[str, str], source_file: SourceFile, refresh: bool) -> PkgbuildFile:
+def craft_pkgbuild(info: dict[str, str], source_file: hints.SourceFile, refresh: bool) -> hints.PkgbuildFile:
   pkgbuild_dir = os.path.expanduser('~/makepkg/pkgbuilds')
   utils.ensure_dir(pkgbuild_dir)
   template = utils.acquire_template('pkgbuild')
@@ -26,7 +23,7 @@ def craft_pkgbuild(info: dict[str, str], source_file: SourceFile, refresh: bool)
     file.write(pkgbuild)
   return filepath
 
-def find_pkg(info: dict[str, str]) -> PackageFile:
+def find_pkg(info: dict[str, str]) -> hints.PackageFile:
   build_dir = os.path.expanduser('~/makepkg/builds')
   pkgid = "%s-" % info["name"]
   pkgdir = utils.ensure_dir(build_dir)
@@ -35,7 +32,7 @@ def find_pkg(info: dict[str, str]) -> PackageFile:
       return os.path.join(pkgdir, file)
   return None
 
-def assemble_package(pkgbuild_file: PkgbuildFile, source_file: SourceFile, info: dict[str, str], refresh: bool) -> PackageFile:
+def assemble_package(pkgbuild_file: hints.PkgbuildFile, source_file: hints.SourceFile, info: dict[str, str], refresh: bool) -> hints.PackageFile:
   build_dir = os.path.expanduser('~/makepkg/builds')
   package_file = find_pkg(info)
   if package_file is None or refresh:
@@ -46,9 +43,9 @@ def assemble_package(pkgbuild_file: PkgbuildFile, source_file: SourceFile, info:
   assert package_file is not None
   return package_file
 
-def craft(info: dict[str, str], refresh: bool) -> PackageFile:
+def craft(info: dict[str, str], refresh: bool) -> hints.PackageFile:
   utils.ensure_fields(info, ["name", "group", "version", "url", "depends"])
-  source_file: SourceFile = download_source(info, refresh)
-  pkgbuild_file: PkgbuildFile = craft_pkgbuild(info, source_file, refresh)
-  package_file: PackageFile = assemble_package(pkgbuild_file, source_file, info, refresh)
+  source_file: hints.SourceFile = download_source(info, refresh)
+  pkgbuild_file: hints.PkgbuildFile = craft_pkgbuild(info, source_file, refresh)
+  package_file: hints.PackageFile = assemble_package(pkgbuild_file, source_file, info, refresh)
   return package_file

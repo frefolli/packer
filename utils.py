@@ -31,3 +31,30 @@ def acquire_template(name: str):
 def compute_hash(filepath: str):
   with open(filepath, 'rb') as file:
     return hashlib.sha256(file.read()).hexdigest()
+
+def get_distro() -> str:
+  if os.path.exists('/etc/os-release'):
+    with open('/etc/os-release', 'r') as file:
+      for line in file:
+        line: str = line.strip()
+        if line.find('ID=') == 0:
+          return line[3:]
+  raise ValueError("unknown distro")
+
+def first_which_exists(file_list: list[str], prefix: str = '') -> str|None:
+  for file in file_list:
+    if os.path.exists(os.path.join(prefix, file)):
+      return file
+  return None
+
+def get_package_manager() -> str:
+  package_manager: str|None = first_which_exists(file_list=[
+    'dnf', 'yum', 'yay', 'pacman'
+  ], prefix='/usr/bin')
+  if package_manager is None:
+    raise ValueError("unknown package manager")
+  return package_manager
+
+def in_packer_format(package_id: str) -> bool:
+  ss = package_id.strip("/").split("/")
+  return len(ss) == 2

@@ -41,5 +41,26 @@ def get_package_info(group: str, name: str) -> dict[str, str]|None:
       if isinstance(info['makedepends'][key], str):
         info['makedepends'][key] = info['makedepends'][key].strip().split(' ')
     info["url"] = "https://github.com/%s/%s" % (info["group"], info["name"])
-    print(info)
     return info
+
+def default_or_fail(rec: dict[str, str], access: str, key: str, value, strict_mode: bool) -> dict[str, str]:
+  rec[access] = rec[access].get(key)
+  if rec[access] is None:
+    if strict_mode:
+      raise ValueError("missing key '%s' inside '%s'" % (key, access))
+    else:
+      rec[access] = value
+  return rec
+
+def create_package_info_closure(info: dict[str, str], strict_mode: bool) -> dict[str, str]:
+  distro = utils.get_distro()
+  info = default_or_fail(info, "depends", distro, [], strict_mode)
+  info = default_or_fail(info, "makedepends", distro, [], strict_mode)
+  return info
+
+def acquire_package_info(package_id: str, strict_mode: bool) -> dict[str, str]:
+  group, name = package_id.split('/')
+  info = get_package_info(group, name)
+  info = create_package_info_closure(info, strict_mode)
+  print(info)
+  return info
