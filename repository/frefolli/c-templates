@@ -2,5 +2,5 @@ version: 1.0.0
 license: MIT
 summary: Templates for C language
 makedepends:
-  arch: make
-  fedora: make
+  arch: make meson
+  fedora: make meson
