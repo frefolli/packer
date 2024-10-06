@@ -1,0 +1,9 @@
+version: 1.0.0
+license: MIT
+summary: Tree Sitter Parser for Yaml
+makedepends:
+  arch: tree-sitter tree-sitter-cli gcc make
+  fedora: libtree-sitter tree-sitter-cli gcc make
+depends:
+  arch: tree-sitter
+  fedora: libtree-sitter
