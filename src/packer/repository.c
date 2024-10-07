@@ -1,3 +1,4 @@
+#include "packer/package.h"
 #include "packer/utility.h"
 #include <assert.h>
 #include <packer/repository.h>
@@ -119,23 +120,23 @@ bool download_dockerfile(const char* packerfile, const char* group, const char* 
 bool retrieve_package_into(Package* package, const char* package_id) {
   char* packerfile_path = packerfile_of(package_id);
   if (!split_package_id(package_id, &package->group, &package->name)) {
+    free_and_clean_charpp(&packerfile_path);
     return false;
   }
 
   if (!file_exists(packerfile_path)) {
     if (!download_dockerfile(packerfile_path, package->group, package->name)) {
-      free_and_clean_charpp(&package->group);
-      free_and_clean_charpp(&package->name);
+      Package__clean(package);
       free_and_clean_charpp(&packerfile_path);
       return false;
     }
   }
   if (!Packerfile__parse_into(&package->packerfile, packerfile_path)) {
-    free_and_clean_charpp(&package->group);
-    free_and_clean_charpp(&package->name);
+    Package__clean(package);
     free_and_clean_charpp(&packerfile_path);
     return false;
   }
+  free_and_clean_charpp(&packerfile_path);
   return true;
 }
 
