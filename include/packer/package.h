@@ -20,6 +20,14 @@ typedef struct Package {
 #include <c-templates/vector.h>
 #undef T
 
+#define K string
+#define V Package
+#define K_Equals(Ka, Kb) (strcmp(Ka, Kb) == 0)
+#include <c-templates/map.h>
+#undef K_Equals
+#undef V
+#undef K
+
 void Package__init(Package* package);
 void Package__clean(Package* package);
 

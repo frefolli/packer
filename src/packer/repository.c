@@ -1,3 +1,4 @@
+#include "packer/utility.h"
 #include <assert.h>
 #include <packer/repository.h>
 #include <curl/curl.h>
@@ -44,14 +45,16 @@ bool split_package_id(const char* package_id, char** recipient_group, char** rec
   char* buffer = strdup(package_id);
 
   const char* c_group = strtok(buffer, "/");
-  if (c_group == NULL)
+  if (c_group == NULL) {
+    free_and_clean_charpp(&buffer);
     return false;
+  }
   *recipient_group = strdup(c_group);
 
   const char* c_name = strtok(NULL, "/");
   if (c_name == NULL) {
-    free(*recipient_group);
-    *recipient_group = NULL;
+    free_and_clean_charpp(&buffer);
+    free_and_clean_charpp(recipient_group);
     return false;
   }
 
@@ -62,6 +65,10 @@ bool split_package_id(const char* package_id, char** recipient_group, char** rec
 
 bool create_packerdir_if_needed(const char* group) {
   char* packerdir = packerdir_of(group);
+  if (file_exists(packerdir)) {
+    free_and_clean_charpp(&packerdir);
+    return true;
+  }
   bool esit = (mkdir(packerdir, S_IRWXU) == 0);
   free(packerdir);
   return esit;
@@ -85,7 +92,6 @@ bool download_dockerfile(const char* packerfile, const char* group, const char* 
   assert (curl);
 
   FILE *fp = fopen(packerfile, "wb");
-  printf("packerfile: %s\n", packerfile);
   assert(fp != NULL);
 
   curl_easy_setopt(curl, CURLOPT_URL, url);
@@ -118,22 +124,16 @@ bool retrieve_package_into(Package* package, const char* package_id) {
 
   if (!file_exists(packerfile_path)) {
     if (!download_dockerfile(packerfile_path, package->group, package->name)) {
-      free(package->group);
-      package->group = NULL;
-      free(package->name);
-      package->name = NULL;
-      free(packerfile_path);
-      packerfile_path = NULL;
+      free_and_clean_charpp(&package->group);
+      free_and_clean_charpp(&package->name);
+      free_and_clean_charpp(&packerfile_path);
       return false;
     }
   }
   if (!Packerfile__parse_into(&package->packerfile, packerfile_path)) {
-    free(package->group);
-    package->group = NULL;
-    free(package->name);
-    package->name = NULL;
-    free(packerfile_path);
-    packerfile_path = NULL;
+    free_and_clean_charpp(&package->group);
+    free_and_clean_charpp(&package->name);
+    free_and_clean_charpp(&packerfile_path);
     return false;
   }
   return true;

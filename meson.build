@@ -6,11 +6,21 @@ ts_yaml = dependency('ts-yaml')
 curl = dependency('libcurl')
 include = include_directories('include')
 
-executable('main.exe', [
+libpacker = library('packer', [
   'src/packer/packerfile.c',
   'src/packer/package.c',
   'src/packer/repository.c',
   'src/packer/utility.c',
-  'src/packer/main.c'
   ], dependencies: [ts_yaml, curl]
   , include_directories: [include])
+ 
+executable('main.exe', [
+ 'src/packer/main.c'
+  ], link_with: [libpacker]
+  , include_directories: [include])
+
+test('test_packerfile',
+  executable('test_packerfile',
+    'tests/packerfile.c',
+    link_with: [libpacker],
+    include_directories: [include]))

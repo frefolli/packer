@@ -1,3 +1,4 @@
+#include "packer/utility.h"
 #include <packer/packerfile.h>
 #include <string.h>
 #include <ts-yaml.h>
@@ -32,19 +33,32 @@ void Packerfile__init(Packerfile* packerfile) {
 }
 
 void Packerfile__clean(Packerfile* packerfile) {
-  if (packerfile->version != NULL) {
-    free(packerfile->version);
-    packerfile->version = NULL;
-  }
-  if (packerfile->license != NULL) {
-    free(packerfile->license);
-    packerfile->license = NULL;
-  }
-  if (packerfile->summary != NULL) {
-    free(packerfile->summary);
-    packerfile->summary = NULL;
+  free_and_clean_charpp(&packerfile->version);
+  free_and_clean_charpp(&packerfile->license);
+  free_and_clean_charpp(&packerfile->summary);
+  for (__auto_type distro = Map_string_Vector_string__begin(&packerfile->makedepends);
+       distro != Map_string_Vector_string__end(&packerfile->makedepends);
+       ++distro) {
+    for (__auto_type package = Vector_string__begin(&distro->second);
+        package != Vector_string__end(&distro->second);
+        ++package) {
+      free_and_clean_charpp(package);
+    }
+    Vector_string__clean(&distro->second);
+    free_and_clean_charpp(&distro->first);
   }
   Map_string_Vector_string__clean(&packerfile->makedepends);
+  for (__auto_type distro = Map_string_Vector_string__begin(&packerfile->depends);
+       distro != Map_string_Vector_string__end(&packerfile->depends);
+       ++distro) {
+    for (__auto_type package = Vector_string__begin(&distro->second);
+        package != Vector_string__end(&distro->second);
+        ++package) {
+      free_and_clean_charpp(package);
+    }
+    Vector_string__clean(&distro->second);
+    free_and_clean_charpp(&distro->first);
+  }
   Map_string_Vector_string__clean(&packerfile->depends);
 }
 
@@ -93,6 +107,8 @@ static inline bool parse_string_field(struct YamlObject* map, const char* field,
 }
 
 static inline bool parse_dependency_field(struct YamlObject* map, const char* field, bool optional, Map_string_Vector_string* recipient) {
+  recipient = recipient;
+
   if (!YamlObject__contains(map, field)) {
     if (optional)
       return true;
@@ -113,6 +129,7 @@ static inline bool parse_dependency_field(struct YamlObject* map, const char* fi
       printf("field '%s':'%s' should be a string\n", field, it->first);
       return false;
     }
+
     char* line = strdup(it->second->string);
     char* distro = strdup(it->first);
     Vector_string packages;
@@ -139,6 +156,7 @@ bool Packerfile__parse_into(Packerfile* packerfile, const char* filepath) {
     return false;
 
   if (!YamlObject__is_map(value)) {
+    YamlObject__delete(value);
     return false;
   }
 
@@ -147,7 +165,8 @@ bool Packerfile__parse_into(Packerfile* packerfile, const char* filepath) {
         && parse_string_field(value, "summary", false,&packerfile->summary)
         && parse_dependency_field(value, "makedepends", true, &packerfile->makedepends)
         && parse_dependency_field(value, "depends", true, &packerfile->depends))) {
-    Packerfile__delete(packerfile);
+    YamlObject__delete(value);
+    Packerfile__clean(packerfile);
     return false;
   }
 

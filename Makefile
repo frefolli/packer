@@ -1,21 +1,28 @@
-@all: ./builddir/main.exe
+BUILDDIR=./builddir
 
-./builddir/main.exe: ./builddir
-	ninja -C ./builddir
+@all: ${BUILDDIR}/main.exe
 
-./builddir: meson.build
+${BUILDDIR}/main.exe: ./builddir
+	ninja -C ${BUILDDIR}
+
+${BUILDDIR}: meson.build
 	meson setup builddir --reconfigure
 
 clean:
 	rm -rf builddir
 
-run: ./builddir/main.exe
-	./builddir/main.exe
+test:
+	meson test -C ${BUILDDIR}
 
-install: ./builddir/main.exe
+run: ${BUILDDIR}/main.exe
+	${BUILDDIR}/main.exe
+
+install: ${BUILDDIR}/main.exe
 	install -d $(DESTDIR)/usr/include
-	install ./include/ts-yaml.h $(DESTDIR)/usr/include
+	install ./include/packer $(DESTDIR)/usr/include
 	install -d $(DESTDIR)/usr/lib64
-	install ./builddir/libts-yaml.so $(DESTDIR)/usr/lib64
+	install ${BUILDDIR}/libpacker.so $(DESTDIR)/usr/lib64
+	install -d $(DESTDIR)/usr/bin
+	install ${BUILDDIR}/main.exe $(DESTDIR)/usr/bin
 	install -d $(DESTDIR)/usr/share
-	install ts-yaml.pc $(DESTDIR)/usr/share
+	install packer.pc $(DESTDIR)/usr/share

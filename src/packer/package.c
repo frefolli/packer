@@ -9,14 +9,8 @@ void Package__init(Package* package) {
 }
 
 void Package__clean(Package* package) {
-  if (package->group != NULL) {
-    free(package->group);
-    package->group = NULL;
-  }
-  if (package->name != NULL) {
-    free(package->name);
-    package->name = NULL;
-  }
+  free_and_clean_charpp(&package->group);
+  free_and_clean_charpp(&package->name);
   Packerfile__clean(&package->packerfile);
   Vector_Packagep__clean(&package->dependencies);
 }

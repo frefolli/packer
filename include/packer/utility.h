@@ -16,4 +16,15 @@ typedef char* string;
 #undef K
 
 bool file_exists(const char* filepath);
+static inline void free_and_clean_voidpp(void** voidpp) {
+  if (voidpp != NULL) {
+    if (*voidpp != NULL) {
+      free(*voidpp);
+      *voidpp = NULL;
+    }
+  }
+}
+static inline void free_and_clean_charpp(char** charpp) {
+  free_and_clean_voidpp((void**) charpp);
+}
 #endif//PACKER_UTILITY

@@ -1,0 +1,11 @@
+prefix=/usr/local
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: packer
+Description: Automatic packaging tool for Arch and Fedora
+URL: https://github.com/frefolli/packer
+Version: 0.0.1
+Requires: 
+Libs: -L${libdir}  -lpacker
+Cflags: -I${includedir}
