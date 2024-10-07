@@ -1,6 +1,7 @@
 #ifndef PACKER_PACKERFILE
 #define PACKER_PACKERFILE
 #include <packer/utility.h>
+#include <stdio.h>
 
 typedef struct {
   char* version;
@@ -12,9 +13,12 @@ typedef struct {
 
 Packerfile* Packerfile__new();
 void Packerfile__delete(Packerfile* packerfile);
+
 void Packerfile__init(Packerfile* packerfile);
 void Packerfile__clean(Packerfile* packerfile);
-void Packerfile__print(Packerfile* packerfile);
-Packerfile* Packerfile__parse(const char* filepath);
 
+void Packerfile__fprint(FILE* fd, const Packerfile* packerfile);
+
+bool Packerfile__parse_into(Packerfile* recipient, const char* filepath);
+Packerfile* Packerfile__parse(const char* filepath);
 #endif//PACKER_PACKERFILE

@@ -48,30 +48,30 @@ void Packerfile__clean(Packerfile* packerfile) {
   Map_string_Vector_string__clean(&packerfile->depends);
 }
 
-void Packerfile__print(Packerfile* packerfile) {
-  printf("version: %s\n", packerfile->version);
-  printf("license: %s\n", packerfile->license);
-  printf("summary: %s\n", packerfile->summary);
-  printf("makedepends:\n");
-  for (__auto_type distro = Map_string_Vector_string__begin(&packerfile->makedepends);
-       distro != Map_string_Vector_string__end(&packerfile->makedepends);
+void Packerfile__fprint(FILE* fd, const Packerfile* packerfile) {
+  fprintf(fd, "version: %s\n", packerfile->version);
+  fprintf(fd, "license: %s\n", packerfile->license);
+  fprintf(fd, "summary: %s\n", packerfile->summary);
+  fprintf(fd, "makedepends:\n");
+  for (__auto_type distro = Map_string_Vector_string__cbegin(&packerfile->makedepends);
+       distro != Map_string_Vector_string__cend(&packerfile->makedepends);
        ++distro) {
-    printf("  %s:\n", distro->first);
-    for (__auto_type package = Vector_string__begin(&distro->second);
-        package != Vector_string__end(&distro->second);
+    fprintf(fd, "  %s:\n", distro->first);
+    for (__auto_type package = Vector_string__cbegin(&distro->second);
+        package != Vector_string__cend(&distro->second);
         ++package) {
-      printf("  - %s\n", *package);
+      fprintf(fd, "  - %s\n", *package);
     }
   }
-  printf("depends:\n");
-  for (__auto_type distro = Map_string_Vector_string__begin(&packerfile->depends);
-       distro != Map_string_Vector_string__end(&packerfile->depends);
+  fprintf(fd, "depends:\n");
+  for (__auto_type distro = Map_string_Vector_string__cbegin(&packerfile->depends);
+       distro != Map_string_Vector_string__cend(&packerfile->depends);
        ++distro) {
-    printf("  %s:\n", distro->first);
-    for (__auto_type package = Vector_string__begin(&distro->second);
-        package != Vector_string__end(&distro->second);
+    fprintf(fd, "  %s:\n", distro->first);
+    for (__auto_type package = Vector_string__cbegin(&distro->second);
+        package != Vector_string__cend(&distro->second);
         ++package) {
-      printf("  - %s\n", *package);
+      fprintf(fd, "  - %s\n", *package);
     }
   }
 }
@@ -133,13 +133,14 @@ static inline bool parse_dependency_field(struct YamlObject* map, const char* fi
   return true;
 }
 
-Packerfile* Packerfile__parse(const char* filepath) {
+bool Packerfile__parse_into(Packerfile* packerfile, const char* filepath) {
   struct YamlObject* value = parse_yaml_file(filepath);
-  if (!YamlObject__is_map(value)) {
-    return NULL;
-  }
+  if (value == NULL)
+    return false;
 
-  Packerfile* packerfile = Packerfile__new();
+  if (!YamlObject__is_map(value)) {
+    return false;
+  }
 
   if (!(parse_string_field(value, "version", false,&packerfile->version)
         && parse_string_field(value, "license", false,&packerfile->license)
@@ -147,9 +148,18 @@ Packerfile* Packerfile__parse(const char* filepath) {
         && parse_dependency_field(value, "makedepends", true, &packerfile->makedepends)
         && parse_dependency_field(value, "depends", true, &packerfile->depends))) {
     Packerfile__delete(packerfile);
-    packerfile = NULL;
+    return false;
   }
 
   YamlObject__delete(value);
+  return true;
+}
+
+Packerfile* Packerfile__parse(const char* filepath) {
+  Packerfile* packerfile = Packerfile__new();
+  if (!Packerfile__parse_into(packerfile, filepath)) {
+    Packerfile__delete(packerfile);
+    packerfile = NULL;
+  }
   return packerfile;
 }

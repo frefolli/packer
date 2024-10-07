@@ -14,4 +14,6 @@ typedef char* string;
 #undef K_Equals
 #undef V
 #undef K
+
+bool file_exists(const char* filepath);
 #endif//PACKER_UTILITY
