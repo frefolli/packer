@@ -1,0 +1,9 @@
+version: 1.0.0
+license: GPL-3.0
+summary: Automatic packaging tool for Arch and Fedora
+makedepends:
+ arch: meson make gcc-c++ frefolli/ts-yaml curl
+ fedora: meson make gcc-c++ frefolli/ts-yaml libcurl-devel
+depends:
+ arch: frefolli/ts-yaml curl
+ fedora: frefolli/ts-yaml libcurl
