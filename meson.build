@@ -1,6 +1,6 @@
 project('packer', 'c',
   version : '0.1',
-  default_options : ['warning_level=3'])
+  default_options : ['werror=true', 'warning_level=3'])
 
 ts_yaml = dependency('ts-yaml')
 curl = dependency('libcurl')
