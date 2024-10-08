@@ -1,6 +1,7 @@
 #include <packer/analysis.h>
 #include <packer/repository.h>
 #include <assert.h>
+#include <stdlib.h>
 
 Package* get_package_from(Host* host, Map_string_Package* packages, Vector_string* queue, const char* package_id) {
   __auto_type it = Map_string_Package__find(packages, package_id);
@@ -29,7 +30,6 @@ bool analyze_package(Host* host, Map_string_Package* packages, Vector_string* qu
       it != Vector_string__end(package->makedepends);
       ++it) {
     const char* dependency_id = *it;
-    printf("dependency_id: %s\n", dependency_id);
     if (is_package_id(dependency_id)) {
       Package* dependency = get_package_from(host, packages, queue, dependency_id);
       if (dependency == NULL) {
@@ -40,8 +40,25 @@ bool analyze_package(Host* host, Map_string_Package* packages, Vector_string* qu
       dependency->depended_on += 1;
     }
   }
-  Package__fprint(stdout, package);
   return true;
+}
+
+int compare_Pair_string_Package(const void* a, const void* b) {
+  Pair_string_Package* A = (Pair_string_Package*) a;
+  Pair_string_Package* B = (Pair_string_Package*) b;
+  if (A->second.depends_on > B->second.depends_on) {
+    return 1;
+  }
+  if (A->second.depends_on < B->second.depends_on) {
+    return -1;
+  }
+  if (A->second.depended_on < B->second.depended_on) {
+    return 1;
+  }
+  if (A->second.depended_on > B->second.depended_on) {
+    return -1;
+  }
+  return 0;
 }
 
 bool analyze_packages(Host* host, Map_string_Package* packages) {
@@ -63,5 +80,7 @@ bool analyze_packages(Host* host, Map_string_Package* packages) {
   }
 
   Vector_string__clean(&queue);
+
+  qsort(Map_string_Package__begin(packages), Map_string_Package__size(packages), sizeof(Pair_string_Package), compare_Pair_string_Package);
   return success;
 }

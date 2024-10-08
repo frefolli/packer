@@ -47,7 +47,6 @@ int main(int argc, char** args) {
     exit_code = 1;
   }
 
-  /*
   if (exit_code == 0) {
     if (Map_string_Package__empty(&packages)) {
       fprintf(stderr, "error: no package specified\n");
@@ -60,7 +59,6 @@ int main(int argc, char** args) {
       }
     }
   }
-  */
 
   for (__auto_type it = Map_string_Package__begin(&packages);
       it != Map_string_Package__end(&packages);
