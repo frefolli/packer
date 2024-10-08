@@ -8,9 +8,11 @@ include = include_directories('include')
 
 libpacker = library('packer', [
   'src/packer/packerfile.c',
+  'src/packer/probe.c',
   'src/packer/package.c',
   'src/packer/repository.c',
   'src/packer/utility.c',
+  'src/packer/analysis.c',
   ], dependencies: [ts_yaml, curl]
   , include_directories: [include])
  
@@ -22,5 +24,11 @@ executable('main.exe', [
 test('test_packerfile',
   executable('test_packerfile',
     'tests/packerfile.c',
+    link_with: [libpacker],
+    include_directories: [include]))
+
+test('test_probe',
+  executable('test_probe',
+    'tests/probe.c',
     link_with: [libpacker],
     include_directories: [include]))

@@ -13,7 +13,10 @@ typedef struct Package {
   char* group;
   char* name;
   Packerfile packerfile;
-  Vector_Packagep dependencies;
+  Vector_string* makedepends;
+  Vector_string* depends;
+  size_t depends_on;
+  size_t depended_on;
 } Package;
 
 #define T Package
@@ -21,11 +24,13 @@ typedef struct Package {
 #undef T
 
 #define K string
-#define V Package
+#define const_K const char*
 #define K_Equals(Ka, Kb) (strcmp(Ka, Kb) == 0)
+#define V Package
 #include <c-templates/map.h>
-#undef K_Equals
 #undef V
+#undef K_Equals
+#undef const_K
 #undef K
 
 void Package__init(Package* package);

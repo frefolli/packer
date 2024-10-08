@@ -8,11 +8,13 @@ typedef char* string;
 #undef T
 
 #define K string
-#define V Vector_string
+#define const_K const char*
 #define K_Equals(Ka, Kb) (strcmp(Ka, Kb) == 0)
+#define V Vector_string
 #include <c-templates/map.h>
-#undef K_Equals
 #undef V
+#undef K_Equals
+#undef const_K 
 #undef K
 
 bool file_exists(const char* filepath);

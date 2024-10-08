@@ -1,7 +1,5 @@
-#include "packer/package.h"
-#include "packer/utility.h"
-#include <assert.h>
 #include <packer/repository.h>
+#include <assert.h>
 #include <curl/curl.h>
 #include <stdio.h>
 #include <sys/stat.h>
@@ -117,7 +115,7 @@ bool download_dockerfile(const char* packerfile, const char* group, const char* 
   return true;
 }
 
-bool retrieve_package_into(Package* package, const char* package_id) {
+bool retrieve_package_into(Host* host, Package* package, const char* package_id) {
   char* packerfile_path = packerfile_of(package_id);
   if (!split_package_id(package_id, &package->group, &package->name)) {
     free_and_clean_charpp(&packerfile_path);
@@ -136,13 +134,41 @@ bool retrieve_package_into(Package* package, const char* package_id) {
     free_and_clean_charpp(&packerfile_path);
     return false;
   }
+  
+  __auto_type makedepends = Map_string_Vector_string__find(&package->packerfile.makedepends, host->distro);
+  if (makedepends == NULL) {
+    Vector_string empty;
+    Vector_string__init(&empty);
+    Map_string_Vector_string__put(&package->packerfile.makedepends, host->distro, empty);
+  
+    makedepends = Map_string_Vector_string__find(&package->packerfile.makedepends, host->distro);
+    if (makedepends == NULL) {
+      Package__clean(package);
+      return NULL;
+    }
+  }
+  __auto_type depends = Map_string_Vector_string__find(&package->packerfile.depends, host->distro);
+  if (depends == NULL) {
+    Vector_string empty;
+    Vector_string__init(&empty);
+    Map_string_Vector_string__put(&package->packerfile.depends, host->distro, empty);
+  
+    depends = Map_string_Vector_string__find(&package->packerfile.depends, host->distro);
+    if (depends == NULL) {
+      Package__clean(package);
+      return NULL;
+    }
+  }
+
+  package->depends = &depends->second;
+  package->makedepends = &makedepends->second;
   free_and_clean_charpp(&packerfile_path);
   return true;
 }
 
-Package* retrive_package(const char* package_id) {
+Package* retrive_package(Host* host, const char* package_id) {
   Package* package = Package__new();
-  if (!retrieve_package_into(package, package_id)) {
+  if (!retrieve_package_into(host, package, package_id)) {
     Package__delete(package);
     package = NULL;
   }

@@ -1,4 +1,3 @@
-#include "packer/utility.h"
 #include <packer/packerfile.h>
 #include <string.h>
 #include <ts-yaml.h>
@@ -94,12 +93,12 @@ static inline bool parse_string_field(struct YamlObject* map, const char* field,
   if (!YamlObject__contains(map, field)) {
     if (optional)
       return true;
-    printf("field '%s' is not optional\n", field);
+    fprintf(stderr, "field '%s' is not optional\n", field);
     return false;
   }
   struct YamlObject* value = YamlObject__get(map, field);
   if (!YamlObject__is_string(value)) {
-    printf("field '%s' should be a string\n", field);
+    fprintf(stderr, "field '%s' should be a string\n", field);
     return false;
   }
   *recipient = strdup(value->string);
@@ -112,13 +111,13 @@ static inline bool parse_dependency_field(struct YamlObject* map, const char* fi
   if (!YamlObject__contains(map, field)) {
     if (optional)
       return true;
-    printf("field '%s' is not optional\n", field);
+    fprintf(stderr, "field '%s' is not optional\n", field);
     return false;
   }
   
   struct YamlObject* dependencies = YamlObject__get(map, field);
   if (!YamlObject__is_map(dependencies)) {
-    printf("field '%s' should be a map\n", field);
+    fprintf(stderr, "field '%s' should be a map\n", field);
     return false;
   }
 
@@ -126,7 +125,7 @@ static inline bool parse_dependency_field(struct YamlObject* map, const char* fi
        it != Map_string_YamlObjectp__end(&dependencies->map);
        ++it) {
     if (!YamlObject__is_string(it->second)) {
-      printf("field '%s':'%s' should be a string\n", field, it->first);
+      fprintf(stderr, "field '%s':'%s' should be a string\n", field, it->first);
       return false;
     }
 

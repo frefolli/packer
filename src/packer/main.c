@@ -1,13 +1,21 @@
-#include "packer/utility.h"
 #include <stdio.h>
 #include <assert.h>
 #include <packer/packerfile.h>
 #include <packer/package.h>
 #include <packer/repository.h>
 #include <packer/analysis.h>
+#include <packer/probe.h>
 
 int main(int argc, char** args) {
   int32_t exit_code = 0;
+
+  Host host;
+  Host__init(&host);
+  if (!Host__read_into(&host)) {
+    fprintf(stderr, "unable to retrieve information about the host machine\n");
+    return 1;
+  }
+  Host__fprintf(stdout, &host);
 
   Map_string_Package packages;
   Map_string_Package__init(&packages);
@@ -25,13 +33,18 @@ int main(int argc, char** args) {
 
     Package package;
     Package__init(&package);
-    if (!retrieve_package_into(&package, package_id)) {
+    if (!retrieve_package_into(&host, &package, package_id)) {
       fprintf(stderr, "unable to read info for package '%s'\n", package_id);
       fprintf(stderr, "Packerfile may not be present in remote repository or the file in the cache could be corrupted.\n");
       exit_code = 1;
       continue;
     }
     Map_string_Package__put(&packages, strdup(package_id), package);
+  }
+
+  if (!analyze_packages(&host, &packages)) {
+    fprintf(stderr, "unable to analyze dependencies of packages\n");
+    exit_code = 1;
   }
 
   /*
@@ -57,5 +70,6 @@ int main(int argc, char** args) {
   }
   Map_string_Package__clean(&packages);
 
+  Host__clean(&host);
   return exit_code;
 }
