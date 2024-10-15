@@ -1,0 +1,15 @@
+version: 1.0.0
+license: MIT
+summary: Tree Sitter Parser for C
+makedepends: gcc make tree-sitter-cli
+patches:
+  arch:
+    makedepends: tree-sitter
+    depends: tree-sitter
+  fedora:
+    makedepends: libtree-sitter
+    depends: libtree-sitter
+build: |
+  make
+install: |
+  make install

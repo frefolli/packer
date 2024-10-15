@@ -1,0 +1,14 @@
+version: 1.0.0
+license: MIT
+summary: A YAML parser and emitter in C++ 
+makedepends: cmake
+patches:
+  arch:
+    makedepends: gcc
+  fedora:
+    makedepends: gcc-c++
+build: |
+  cmake -S . -B builddir -DCMAKE_INSTALL_PREFIX=/usr
+  cmake --build builddir
+install: |
+  make -C builddir install

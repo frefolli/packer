@@ -1,0 +1,25 @@
+project('packer', 'cpp',
+  version : '0.1',
+  # 'werror=true', 
+  default_options : ['warning_level=3', 'optimization=3', 'buildtype=release'])
+
+include = include_directories('./include')
+yaml_cpp = dependency('yaml-cpp', required : false)
+
+libpacker = library('packer', [
+    'src/packer/serde.cc',
+  ], dependencies: [
+    yaml_cpp
+  ], include_directories: [
+    include
+  ])
+ 
+executable('packer.exe', [
+   'src/packer/main.cc'
+  ], dependencies: [
+    yaml_cpp
+  ], link_with: [
+    libpacker
+  ], include_directories: [
+    include
+  ])
