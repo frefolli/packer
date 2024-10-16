@@ -132,3 +132,10 @@ std::ostream& packer::operator<<(std::ostream& out, const packer::Patchable& pat
   }
   return out;
 }
+
+std::ostream& packer::operator<<(std::ostream& out, const packer::Host& host) {
+  out << "distro: " << host.distro << std::endl;
+  out << "package_manager: " << host.package_manager << std::endl;
+  out << "packaging: " << host.packaging;
+  return out;
+}

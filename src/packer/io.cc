@@ -11,7 +11,7 @@ bool packer::load_from_file(Packerfile& packerfile, const std::string& filepath)
   }
   YAML::Node yaml_file = YAML::LoadFile(filepath);
   if (!packer::operator>>(yaml_file, packerfile)) {
-    packer::throw_warning(MSG("file '" << filepath << "' has invalid format"));
+    packer::throw_warning(MSG("file '" << filepath << "' is ill-formed"));
     return false;
   }
   return true;
