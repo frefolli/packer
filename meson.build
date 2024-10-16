@@ -6,7 +6,9 @@ include = include_directories('./include')
 yaml_cpp = dependency('yaml-cpp', required : false)
 
 libpacker = library('packer', [
+    'src/packer/util.cc',
     'src/packer/serde.cc',
+    'src/packer/io.cc',
   ], dependencies: [
     yaml_cpp
   ], include_directories: [

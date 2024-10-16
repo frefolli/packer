@@ -1,6 +1,8 @@
 #include <packer/serde.hh>
+#include <packer/util.hh>
 #include <ostream>
 #include <cstring>
+#include <cstdio>
 
 void packer::operator<<(YAML::Node& out, const packer::Packerfile& packerfile) {
   out["version"] = packerfile.version;
@@ -9,18 +11,29 @@ void packer::operator<<(YAML::Node& out, const packer::Packerfile& packerfile) {
   out << packerfile.baseline;
 }
 
+inline bool parse_string(const YAML::Node& in, std::string& out, const std::string& keyword, bool or_null = false) {
+  bool ok = true;
+  out.clear();
+  if (in[keyword].IsDefined()) {
+    if (in[keyword].IsScalar()) {
+      out = packer::trim_string(in[keyword].as<std::string>());
+    } else {
+      ok = false;
+    }
+  } else {
+    ok = or_null;
+  }
+  return ok;
+}
+
 bool packer::operator>>(const YAML::Node& in, packer::Packerfile& packerfile) {
   bool ok = true;
   if (!in.IsMap()) {
     ok = false;
   } else {
-    if (in["version"].IsScalar() && in["license"].IsScalar() && in["summary"].IsScalar()) {
-      packerfile.version = in["version"].as<std::string>();
-      packerfile.license = in["license"].as<std::string>();
-      packerfile.summary = in["summary"].as<std::string>();
-    } else {
-      ok = false;
-    }
+    ok &= parse_string(in, packerfile.version, "version");
+    ok &= parse_string(in, packerfile.license, "license");
+    ok &= parse_string(in, packerfile.summary, "summary");
     ok &= (in >> packerfile.baseline);
     if (in["patches"].IsMap()) {
       packerfile.patches.clear();
@@ -48,26 +61,28 @@ void packer::operator<<(YAML::Node& out, const packer::Patchable& patchable) {
   out["install"] = patchable.install_script;
 }
 
-inline bool parse_vector_of_dependencies(const YAML::Node& in, std::vector<std::string>& out, const std::string& keyword) {
+inline bool parse_vector_of_dependencies(const YAML::Node& in, std::vector<std::string>& out, const std::string& keyword, bool or_null = false) {
   bool ok = true;
-  if (in[keyword].IsScalar()) {
-    out.clear();
-    std::string buffer = in[keyword].as<std::string>();
-    const char* token = std::strtok(buffer.data(), " ,");
-    while (token != nullptr) {
-      if (strlen(token) > 0) {
-        out.push_back(token);
+  out.clear();
+  if (in[keyword].IsDefined()) {
+    if (in[keyword].IsScalar()) {
+      std::string buffer = in[keyword].as<std::string>();
+      const char* token = std::strtok(buffer.data(), " ,");
+      while (token != nullptr) {
+        if (strlen(token) > 0) {
+          out.push_back(token);
+        }
+        token = std::strtok(nullptr, " ,");
       }
-      token = std::strtok(nullptr, " ,");
+    } else if (in[keyword].IsSequence()) {
+      for (const YAML::Node& token : in[keyword]) {
+        out.push_back(token.as<std::string>());
+      }
+    } else {
+      ok = false;
     }
-  }
-  else if (in[keyword].IsSequence()) {
-    for (const YAML::Node& token : in[keyword]) {
-      out.push_back(token.as<std::string>());
-    }
-    out.clear();
-  } else if (in[keyword].IsDefined()) {
-    ok = false;
+  } else {
+    ok = or_null;
   }
   return ok;
 }
@@ -78,18 +93,10 @@ bool packer::operator>>(const YAML::Node& in, packer::Patchable& patchable) {
   if (!in.IsMap()) {
     ok = false;
   } else {
-    if (in["build"].IsScalar()) {
-      patchable.build_script = in["build"].as<std::string>();
-    } else if (in["build"].IsDefined()) {
-      ok = false;
-    }
-    if (in["install"].IsScalar()) {
-      patchable.install_script = in["install"].as<std::string>();
-    } else if (in["install"].IsDefined()) {
-      ok = false;
-    }
-    ok &= parse_vector_of_dependencies(in, patchable.depends, "depends"); 
-    ok &= parse_vector_of_dependencies(in, patchable.makedepends, "makedepends"); 
+    ok &= parse_string(in, patchable.build_script, "build", true);
+    ok &= parse_string(in, patchable.install_script, "install", true);
+    ok &= parse_vector_of_dependencies(in, patchable.depends, "depends", true); 
+    ok &= parse_vector_of_dependencies(in, patchable.makedepends, "makedepends", true); 
   }
   
   return ok;
