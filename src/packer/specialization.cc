@@ -1,4 +1,5 @@
 #include <packer/specialization.hh>
+#include <packer/util.hh>
 #include <packer/logging.hh>
 #include <filesystem>
 
@@ -72,4 +73,19 @@ bool packer::probe_host(packer::Host& out) {
   out.package_manager = maybe_package_manager.value();
   out.packaging = maybe_packaging.value();
   return true;
+}
+
+void packer::patch(const packer::Host& host, packer::Packerfile& packerfile) {
+  auto patch = packerfile.patches.find(host.distro);
+  if (patch != packerfile.patches.end()) {
+    if (!patch->second.build_script.empty())
+      packerfile.baseline.build_script += "\n" + patch->second.build_script;
+    if (!patch->second.install_script.empty())
+    packerfile.baseline.install_script += "\n" + patch->second.install_script;
+    packer::merge_vectors(packerfile.baseline.depends, patch->second.depends);
+    packer::merge_vectors(packerfile.baseline.makedepends, patch->second.makedepends);
+  } else {
+    packer::throw_warning(MSG("missing patch for '" << host.distro << "' is always interpreted as not-needed (add an empty clause to solve this warning)"));
+  }
+  packerfile.patches.clear();
 }

@@ -8,7 +8,7 @@ patches:
   fedora:
     makedepends: gcc-c++
 build: |
-  cmake -S . -B builddir -DCMAKE_INSTALL_PREFIX=/usr
+  cmake -S . -B builddir -DCMAKE_INSTALL_PREFIX=$PREFIX -DYAML_BUILD_SHARED_LIBS=on 
   cmake --build builddir
 install: |
   make -C builddir install

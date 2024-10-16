@@ -21,6 +21,7 @@ int main(int argc, char** args) {
     if (!packer::load_from_file(packerfile, filepath)) {
       packer::raise_error(1, MSG("file '" << filepath << "' cannot be read as Packerfile"));
     }
+    packer::patch(host, packerfile);
     std::cout << "# Packerfile '" << filepath << "'" << std::endl;
     packer::operator<<(std::cout, packerfile) << std::endl;
   }

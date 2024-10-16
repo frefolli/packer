@@ -70,13 +70,13 @@ inline bool parse_vector_of_dependencies(const YAML::Node& in, std::vector<std::
       const char* token = std::strtok(buffer.data(), " ,");
       while (token != nullptr) {
         if (strlen(token) > 0) {
-          out.push_back(token);
+          packer::add_if_not_present(out, std::string(token));
         }
         token = std::strtok(nullptr, " ,");
       }
     } else if (in[keyword].IsSequence()) {
       for (const YAML::Node& token : in[keyword]) {
-        out.push_back(token.as<std::string>());
+        packer::add_if_not_present(out, token.as<std::string>());
       }
     } else {
       ok = false;
