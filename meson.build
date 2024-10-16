@@ -10,6 +10,7 @@ libpacker = library('packer', [
     'src/packer/serde.cc',
     'src/packer/io.cc',
     'src/packer/specialization.cc',
+    'src/packer/scheduling.cc',
   ], dependencies: [
     yaml_cpp
   ], include_directories: [

@@ -81,7 +81,7 @@ void packer::patch(const packer::Host& host, packer::Packerfile& packerfile) {
     if (!patch->second.build_script.empty())
       packerfile.baseline.build_script += "\n" + patch->second.build_script;
     if (!patch->second.install_script.empty())
-    packerfile.baseline.install_script += "\n" + patch->second.install_script;
+      packerfile.baseline.install_script += "\n" + patch->second.install_script;
     packer::merge_vectors(packerfile.baseline.depends, patch->second.depends);
     packer::merge_vectors(packerfile.baseline.makedepends, patch->second.makedepends);
   } else {
