@@ -2,7 +2,7 @@
 #define PACKER_SERDE
 #include <packer/patchable.hh>
 #include <packer/packerfile.hh>
-#include <yaml-cpp/node/node.h>
+#include <yaml-cpp/yaml.h>
 
 namespace packer {
   void operator<<(YAML::Node& out, const Packerfile& packerfile);

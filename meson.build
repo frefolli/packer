@@ -1,7 +1,6 @@
 project('packer', 'cpp',
   version : '0.1',
-  # 'werror=true', 
-  default_options : ['warning_level=3', 'optimization=3', 'buildtype=release'])
+  default_options : ['werror=true', 'warning_level=3', 'optimization=3', 'buildtype=release'])
 
 include = include_directories('./include')
 yaml_cpp = dependency('yaml-cpp', required : false)
