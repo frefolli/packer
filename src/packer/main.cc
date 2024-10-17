@@ -30,4 +30,8 @@ int main(int argc, char** args) {
   if (!packer::schedule_packages(host, packages, packerfiles)) {
     packer::raise_error(1, MSG("unable to schedule packages"));
   }
+
+  for (std::pair<std::string, packer::Package*> package_it : packages) {
+    delete package_it.second;
+  }
 }
