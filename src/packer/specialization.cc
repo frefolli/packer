@@ -85,7 +85,7 @@ void packer::patch(const packer::Host& host, packer::Packerfile& packerfile) {
     packer::merge_vectors(packerfile.baseline.depends, patch->second.depends);
     packer::merge_vectors(packerfile.baseline.makedepends, patch->second.makedepends);
   } else {
-    packer::throw_warning(MSG("missing patch for '" << host.distro << "' is always interpreted as not-needed (add an empty clause to solve this warning)"));
+    packer::throw_warning(MSG("missing patch of '" << packerfile.locator.id()  <<  "' for  '" << host.distro << "' is always interpreted as not-needed (add an empty clause to solve this warning)"));
   }
   packerfile.patches.clear();
 }

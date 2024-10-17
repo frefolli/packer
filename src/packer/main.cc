@@ -20,15 +20,14 @@ int main(int argc, char** args) {
   for (int argi = 1; argi < argc; ++argi) {
     std::string package_id = args[argi];
     packer::Packerfile packerfile;
-    if (!packer::load_from_package_id(packerfile, package_id)) {
+    if (!packer::load_from_package_id(host, packerfile, package_id)) {
       packer::raise_error(1, MSG("unable to load Packerfile for '" << package_id << "' package_id"));
     }
-    packer::patch(host, packerfile);
     packerfiles[package_id] = packerfile;
   }
 
   std::unordered_map<std::string, packer::Package*> packages;
-  if (!packer::schedule_packages(packages, packerfiles)) {
+  if (!packer::schedule_packages(host, packages, packerfiles)) {
     packer::raise_error(1, MSG("unable to schedule packages"));
   }
 }

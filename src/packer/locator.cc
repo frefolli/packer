@@ -11,3 +11,7 @@ bool packer::is_package_id(const std::string& maybe_package_id) {
   }
   return parsed_slash;
 }
+
+std::string packer::Locator::id() {
+  return group + "/" + name;
+}

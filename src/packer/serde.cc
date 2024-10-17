@@ -35,21 +35,23 @@ bool packer::operator>>(const YAML::Node& in, packer::Packerfile& packerfile) {
     ok &= parse_string(in, packerfile.license, "license");
     ok &= parse_string(in, packerfile.summary, "summary");
     ok &= (in >> packerfile.baseline);
-    if (in["patches"].IsMap()) {
-      packerfile.patches.clear();
-      for (YAML::const_iterator it = in["patches"].begin(); it != in["patches"].end(); ++it) {
-        if (!it->first.IsScalar()) {
-          ok = false;
-          continue;
+    if (in["patches"].IsDefined()) {
+      if (in["patches"].IsMap()) {
+        packerfile.patches.clear();
+        for (YAML::const_iterator it = in["patches"].begin(); it != in["patches"].end(); ++it) {
+          if (!it->first.IsScalar()) {
+            ok = false;
+            continue;
+          }
+          std::string key = it->first.as<std::string>();
+          Patchable patch;
+          ok &= (it->second >> patch);
+          if (ok)
+            packerfile.patches[key] = std::move(patch);
         }
-        std::string key = it->first.as<std::string>();
-        Patchable patch;
-        ok &= (it->second >> patch);
-        if (ok)
-          packerfile.patches[key] = std::move(patch);
+      } else {
+        ok = false;
       }
-    } else if (in["patches"].IsDefined()) {
-      ok = false;
     }
   }
 
