@@ -4,6 +4,7 @@
 #include <packer/logging.hh>
 #include <packer/specialization.hh>
 #include <packer/scheduling.hh>
+#include <packer/analysis.hh>
 #include <yaml-cpp/yaml.h>
 #include <cassert>
 #include <iostream>
@@ -26,12 +27,22 @@ int main(int argc, char** args) {
     packerfiles[package_id] = packerfile;
   }
 
-  std::unordered_map<std::string, packer::Package*> packages;
-  if (!packer::schedule_packages(host, packages, packerfiles)) {
+  std::unordered_map<std::string, packer::Package*> package_index;
+  if (!packer::analyze_packages(host, package_index, packerfiles)) {
+    packer::raise_error(1, MSG("unable to analyze packages"));
+  }
+
+  std::vector<packer::Package*> schedule;
+  if (!packer::schedule_packages(schedule,package_index)) {
     packer::raise_error(1, MSG("unable to schedule packages"));
   }
 
-  for (std::pair<std::string, packer::Package*> package_it : packages) {
+  for (packer::Package* package : schedule) {
+    std::clog << "#################################################" << std::endl;
+    packer::operator<<(std::clog, *package) << std::endl;
+  }
+
+  for (std::pair<std::string, packer::Package*> package_it :package_index) {
     delete package_it.second;
   }
 }

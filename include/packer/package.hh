@@ -2,9 +2,11 @@
 #define PACKER_PACKAGE
 #include <string>
 #include <vector>
+#include <packer/locator.hh>
 
 namespace packer {
   struct Package {
+    packer::Locator locator;
     std::string version;
     std::string license;
     std::string summary;

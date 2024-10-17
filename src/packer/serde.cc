@@ -106,6 +106,7 @@ bool packer::operator>>(const YAML::Node& in, packer::Patchable& patchable) {
 }
 
 std::ostream& packer::operator<<(std::ostream& out, const packer::Packerfile& packerfile) {
+  out << packerfile.locator << std::endl;
   out << "version: " << packerfile.version << std::endl;
   out << "license: " << packerfile.license << std::endl;
   out << "summary: " << packerfile.summary << std::endl;
@@ -140,5 +141,48 @@ std::ostream& packer::operator<<(std::ostream& out, const packer::Host& host) {
   out << "distro: " << host.distro << std::endl;
   out << "package_manager: " << host.package_manager << std::endl;
   out << "packaging: " << host.packaging;
+  return out;
+}
+
+std::ostream& packer::operator<<(std::ostream& out, const Locator& locator) {
+  out << "group: " << locator.group << std::endl;
+  out << "name: " << locator.name << std::endl;
+  out << "url: " << locator.url << std::endl;
+  out << "path: " << locator.path << std::endl;
+  return out;
+}
+
+std::ostream& packer::operator<<(std::ostream& out, const Package& package) {
+  out << package.locator << std::endl;
+  out << "version: " << package.version << std::endl;
+  out << "license: " << package.license << std::endl;
+  out << "summary: " << package.summary << std::endl;
+
+  out << "build_system_deps:";
+  for (std::string requirement : package.build_system_requirements) {
+    out << " " << requirement;
+  }
+  out << std::endl;
+  
+  out << "install_system_deps:";
+  for (std::string requirement : package.install_system_requirements) {
+    out << " " << requirement;
+  }
+  out << std::endl;
+
+  out << "build_packer_deps:";
+  for (packer::Package* requirement : package.build_packer_requirements) {
+    out << " " << requirement;
+  }
+  out << std::endl;
+
+  out << "install_packer_deps:";
+  for (packer::Package* requirement : package.install_packer_requirements) {
+    out << " " << requirement;
+  }
+  out << std::endl;
+
+  out << "build: | " << package.build_script << std::endl;
+  out << "install: | " << package.install_script;
   return out;
 }

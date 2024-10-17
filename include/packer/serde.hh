@@ -3,6 +3,7 @@
 #include <packer/patchable.hh>
 #include <packer/packerfile.hh>
 #include <packer/specialization.hh>
+#include <packer/package.hh>
 #include <yaml-cpp/yaml.h>
 
 namespace packer {
@@ -16,5 +17,8 @@ namespace packer {
   std::ostream& operator<<(std::ostream& out, const Patchable& patchable);
 
   std::ostream& operator<<(std::ostream& out, const Host& host);
+
+  std::ostream& operator<<(std::ostream& out, const Locator& locator);
+  std::ostream& operator<<(std::ostream& out, const Package& package);
 }
 #endif//PACKER_SERDE
