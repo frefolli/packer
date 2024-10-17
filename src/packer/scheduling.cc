@@ -52,7 +52,7 @@ bool packer::schedule_packages(std::vector<packer::Package*>& schedule, const st
     schedule.push_back(package_it.second);
   }
   std::sort(schedule.begin(), schedule.end(), [&weights](const packer::Package* A, const packer::Package* B){
-    return weights[A] < weights[B];
+    return weights[A] >= weights[B];
   });
   return true;
 }

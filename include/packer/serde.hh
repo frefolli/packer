@@ -2,7 +2,7 @@
 #define PACKER_SERDE
 #include <packer/patchable.hh>
 #include <packer/packerfile.hh>
-#include <packer/specialization.hh>
+#include <packer/host.hh>
 #include <packer/package.hh>
 #include <yaml-cpp/yaml.h>
 

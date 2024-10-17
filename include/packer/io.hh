@@ -3,7 +3,7 @@
 #include <optional>
 #include <packer/packerfile.hh>
 #include <packer/locator.hh>
-#include <packer/specialization.hh>
+#include <packer/host.hh>
 
 namespace packer {
   bool load_from_file(Packerfile& packerfile, const std::string& filepath);

@@ -1,4 +1,4 @@
-#include <packer/specialization.hh>
+#include <packer/host.hh>
 #include <packer/util.hh>
 #include <packer/logging.hh>
 #include <filesystem>
@@ -42,23 +42,23 @@ std::optional<std::string> packer::identify_distro() {
   return result;
 }
 
-std::optional<std::string> packer::identify_package_manager() {
-  if (std::filesystem::exists("/usr/bin/dnf"))
-    return "/usr/bin/dnf";
-  if (std::filesystem::exists("/usr/bin/yum"))
-    return "/usr/bin/yum";
-  if (std::filesystem::exists("/usr/bin/yay"))
-    return "/usr/bin/yay";
-  if (std::filesystem::exists("/usr/bin/pacman"))
-    return "/usr/bin/pacman";
+std::optional<packer::package_manager_t> packer::identify_package_manager() {
+  if (std::filesystem::exists(packer::DNF_PATH))
+    return packer::DNF;
+  if (std::filesystem::exists(packer::YUM_PATH))
+    return packer::YUM;
+  if (std::filesystem::exists(packer::YAY_PATH))
+    return packer::YAY;
+  if (std::filesystem::exists(packer::PACMAN_PATH))
+    return packer::PACMAN;
   return std::nullopt;
 }
 
-std::optional<std::string> packer::identify_packaging() {
-  if (std::filesystem::exists("/usr/bin/makepkg"))
-    return "/usr/bin/makepkg";
-  if (std::filesystem::exists("/usr/bin/rpmbuild"))
-    return "/usr/bin/rpmbuild";
+std::optional<packer::packaging_t> packer::identify_packaging() {
+  if (std::filesystem::exists(packer::MAKEPKG_PATH))
+    return packer::MAKEPKG;
+  if (std::filesystem::exists(packer::RPMBUILD_PATH))
+    return packer::RPMBUILD;
   return std::nullopt;
 }
 

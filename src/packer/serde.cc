@@ -139,8 +139,18 @@ std::ostream& packer::operator<<(std::ostream& out, const packer::Patchable& pat
 
 std::ostream& packer::operator<<(std::ostream& out, const packer::Host& host) {
   out << "distro: " << host.distro << std::endl;
-  out << "package_manager: " << host.package_manager << std::endl;
-  out << "packaging: " << host.packaging;
+  out << "package_manager: " << std::endl;
+  switch (host.package_manager) {
+    case packer::DNF: out << DNF_PATH << std::endl; break;
+    case packer::YUM: out << YUM_PATH << std::endl; break;
+    case packer::YAY: out << YAY_PATH << std::endl; break;
+    case packer::PACMAN: out << PACMAN_PATH << std::endl; break;
+  }
+  out << "packaging: ";
+  switch (host.packaging) {
+    case packer::RPMBUILD: out << RPMBUILD_PATH << std::endl; break;
+    case packer::MAKEPKG: out << MAKEPKG_PATH << std::endl; break;
+  }
   return out;
 }
 

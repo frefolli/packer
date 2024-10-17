@@ -2,7 +2,7 @@
 #include <packer/serde.hh>
 #include <packer/io.hh>
 #include <packer/logging.hh>
-#include <packer/specialization.hh>
+#include <packer/host.hh>
 #include <packer/scheduling.hh>
 #include <packer/analysis.hh>
 #include <yaml-cpp/yaml.h>

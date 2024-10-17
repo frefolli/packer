@@ -2,7 +2,7 @@
 #define PACKER_ANALYSIS
 #include <packer/packerfile.hh>
 #include <packer/package.hh>
-#include <packer/specialization.hh>
+#include <packer/host.hh>
 
 namespace packer {
   bool analyze_packages(const packer::Host& host,
