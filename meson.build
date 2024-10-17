@@ -14,6 +14,7 @@ libpacker = library('packer', [
     'src/packer/analysis.cc',
     'src/packer/locator.cc',
     'src/packer/package_manager.cc',
+    'src/packer/packaging.cc',
     'src/packer/system.cc',
   ], dependencies: [
     yaml_cpp

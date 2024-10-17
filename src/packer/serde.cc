@@ -151,6 +151,7 @@ std::ostream& packer::operator<<(std::ostream& out, const packer::Host& host) {
     case packer::RPMBUILD: out << RPMBUILD_PATH << std::endl; break;
     case packer::MAKEPKG: out << MAKEPKG_PATH << std::endl; break;
   }
+  out << "homedir: " << host.homedir;
   return out;
 }
 

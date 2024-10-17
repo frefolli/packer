@@ -5,6 +5,9 @@
 #include <regex>
 
 bool packer::install_system_dependencies(packer::package_manager_t package_manager, const std::vector<std::string>& dependencies) {
+  if (dependencies.empty())
+    return true;
+
   auto buffer = MSG("");
   switch (package_manager) {
     case packer::DNF: buffer << "sudo " << DNF_PATH << " install"; break;
@@ -33,6 +36,9 @@ bool packer::install_packer_package(packer::package_manager_t package_manager, s
 }
 
 bool packer::filter_installed_packages(packer::package_manager_t package_manager, std::vector<std::string>& maybe_installed_packages) {
+  if (maybe_installed_packages.empty())
+    return true;
+
   auto buffer = MSG("");
   switch (package_manager) {
     case packer::DNF: buffer << "dnf info "; break;

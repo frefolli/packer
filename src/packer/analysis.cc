@@ -58,6 +58,8 @@ bool analyze_package(const packer::Host& host,
   package->version = packerfile.version;
   package->license = packerfile.license;
   package->summary = packerfile.summary;
+  package->build_script = packerfile.baseline.build_script;
+  package->install_script = packerfile.baseline.install_script;
 
   if (!analyze_dependencies(host,
         packages,

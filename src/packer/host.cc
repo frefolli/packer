@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <packer/host.hh>
 #include <packer/util.hh>
 #include <packer/logging.hh>
@@ -62,16 +63,25 @@ std::optional<packer::packaging_t> packer::identify_packaging() {
   return std::nullopt;
 }
 
+std::optional<std::string> packer::identify_homedir() {
+  const char* HOME = std::getenv("HOME");
+  if (HOME == nullptr)
+    return std::nullopt;
+  return HOME;
+}
+
 bool packer::probe_host(packer::Host& out) {
   const auto maybe_distro = identify_distro();
   const auto maybe_package_manager = identify_package_manager();
   const auto maybe_packaging = identify_packaging();
-  if (!(maybe_distro.has_value() && maybe_package_manager.has_value() && maybe_packaging.has_value())) {
+  const auto maybe_homedir = identify_homedir();
+  if (!(maybe_distro.has_value() && maybe_package_manager.has_value() && maybe_packaging.has_value() && maybe_homedir.has_value())) {
     return false;
   }
   out.distro = maybe_distro.value();
   out.package_manager = maybe_package_manager.value();
   out.packaging = maybe_packaging.value();
+  out.homedir = maybe_homedir.value();
   return true;
 }
 

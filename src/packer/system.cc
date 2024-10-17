@@ -26,3 +26,7 @@ std::optional<std::string> packer::get_stdout_of_shell_command(const std::string
   }
   return result;
 }
+
+bool packer::download_file(const std::string& url, const std::string& out) {
+  return packer::execute_shell_command(MSG("wget " << url << " -O " << out).str());
+}
