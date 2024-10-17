@@ -13,3 +13,9 @@ clean:
 
 test:
 	meson test -C ${BUILDDIR}
+
+install:
+	install -d ${DESTDIR}/usr/bin
+	install ./builddir/packer.exe ${DESTDIR}/usr/bin
+	install -d ${DESTDIR}/usr/include/packer
+	install ./include/packer/*.hh ${DESTDIR}/usr/include/packer
