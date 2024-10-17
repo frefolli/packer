@@ -4,6 +4,6 @@
 #include <packer/package.hh>
 
 namespace packer {
-  bool schedule_packages(std::vector<Package*>& packages, const std::unordered_map<std::string, Packerfile>& packerfile_index);
+  bool schedule_packages(std::unordered_map<std::string, Package*>& packages, std::unordered_map<std::string, Packerfile>& packerfile_index);
 }
 #endif//PACKER_SCHEDULING

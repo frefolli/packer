@@ -61,18 +61,19 @@ void packer::operator<<(YAML::Node& out, const packer::Patchable& patchable) {
   out["install"] = patchable.install_script;
 }
 
+constexpr const char* PACKERFILE_DEPENDENCIES_DELIMITERS = ", ";
 inline bool parse_vector_of_dependencies(const YAML::Node& in, std::vector<std::string>& out, const std::string& keyword, bool or_null = false) {
   bool ok = true;
   out.clear();
   if (in[keyword].IsDefined()) {
     if (in[keyword].IsScalar()) {
       std::string buffer = in[keyword].as<std::string>();
-      const char* token = std::strtok(buffer.data(), " ,");
+      const char* token = std::strtok(buffer.data(), PACKERFILE_DEPENDENCIES_DELIMITERS);
       while (token != nullptr) {
         if (strlen(token) > 0) {
           packer::add_if_not_present(out, std::string(token));
         }
-        token = std::strtok(nullptr, " ,");
+        token = std::strtok(nullptr, PACKERFILE_DEPENDENCIES_DELIMITERS);
       }
     } else if (in[keyword].IsSequence()) {
       for (const YAML::Node& token : in[keyword]) {
@@ -116,16 +117,16 @@ std::ostream& packer::operator<<(std::ostream& out, const packer::Packerfile& pa
 }
 
 std::ostream& packer::operator<<(std::ostream& out, const packer::Patchable& patchable) {
-  out << "  build_script: " << patchable.build_script << std::endl;
-  out << "  install_script: " << patchable.install_script;
+  out << "  build_script: | " << patchable.build_script << std::endl;
+  out << "  install_script: | " << patchable.install_script;
   if (patchable.depends.size() > 0) {
-    out << std::endl << "depends:";
+    out << std::endl << "  depends: |";
     for (const std::string& item : patchable.depends) {
       out << " " << item;
     }
   }
   if (patchable.makedepends.size() > 0) {
-    out << std::endl << "makedepends:";
+    out << std::endl << "  makedepends: |";
     for (const std::string& item : patchable.makedepends) {
       out << " " << item;
     }
