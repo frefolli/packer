@@ -139,7 +139,7 @@ std::ostream& packer::operator<<(std::ostream& out, const packer::Patchable& pat
 
 std::ostream& packer::operator<<(std::ostream& out, const packer::Host& host) {
   out << "distro: " << host.distro << std::endl;
-  out << "package_manager: " << std::endl;
+  out << "package_manager: ";
   switch (host.package_manager) {
     case packer::DNF: out << DNF_PATH << std::endl; break;
     case packer::YUM: out << YUM_PATH << std::endl; break;

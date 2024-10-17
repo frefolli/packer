@@ -12,6 +12,13 @@
 #include <cassert>
 #include <iostream>
 
+struct CLI {
+  bool refresh = false;
+  bool install = false;
+  bool help = false;
+  std::string repository = "./repository";
+};
+
 int main(int argc, char** args) {
   packer::Host host;
   if (!packer::probe_host(host)) {
