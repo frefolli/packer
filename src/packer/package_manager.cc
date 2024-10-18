@@ -41,10 +41,10 @@ bool packer::filter_installed_packages(packer::package_manager_t package_manager
 
   auto buffer = MSG("");
   switch (package_manager) {
-    case packer::DNF: buffer << "dnf info "; break;
-    case packer::YUM: buffer << "dnf info "; break;
-    case packer::YAY: buffer << "yay -Qi "; break;
-    case packer::PACMAN: buffer << "yay -Qi "; break;
+    case packer::DNF: buffer << DNF_PATH << " info "; break;
+    case packer::YUM: buffer << YUM_PATH << " info "; break;
+    case packer::YAY: buffer << YAY_PATH << " -Qi "; break;
+    case packer::PACMAN: buffer << PACMAN_PATH << " -Qi "; break;
     default: raise_error(1, MSG("package_manager := " << package_manager));
   }
   for (const std::string& package : maybe_installed_packages) {
