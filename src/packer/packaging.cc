@@ -103,11 +103,11 @@ namespace packer::rpmbuild {
   }
   
   std::optional<std::string> assemble_package(const std::string& homedir, const std::string& spec_file, packer::Package* package) {
-    std::string source_dir = std::filesystem::path(MSG(homedir << "/rpmbuild/RPMS/x86_64").str());
-    if (!std::filesystem::exists(source_dir)) {
-      std::filesystem::create_directories(source_dir);
+    std::string build_dir = std::filesystem::path(MSG(homedir << "/rpmbuild/RPMS/x86_64").str());
+    if (!std::filesystem::exists(build_dir)) {
+      std::filesystem::create_directories(build_dir);
     }
-    std::string package_file = std::filesystem::path(MSG(homedir << "/" << package->locator.name << "-" << package->version << "-1.x86_64.rpm").str());
+    std::string package_file = std::filesystem::path(MSG(build_dir << "/" << package->locator.name << "-" << package->version << "-1.x86_64.rpm").str());
     if (std::filesystem::exists(package_file) && !package->refresh_before_build) {
       return package_file;
     }
