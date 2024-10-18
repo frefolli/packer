@@ -36,7 +36,6 @@ bool parse_cli(CLI& cli, int argc, char** args) {
     if (arg[0] == '-') {
       if (arg.size() > 1) {
         if (arg[1] == '-') {
-          // long flag
           std::string long_flag = arg.substr(2);
           if (long_flag == "help") {
             print_help();
@@ -55,7 +54,6 @@ bool parse_cli(CLI& cli, int argc, char** args) {
             return false;
           }
         } else {
-          // stacked short flags
           for (char c : arg.substr(1)) {
             if (c == 'h') {
               print_help();
@@ -76,7 +74,8 @@ bool parse_cli(CLI& cli, int argc, char** args) {
           }
         }
       } else {
-        return true;
+        packer::throw_warning(MSG("unknown flag '" << arg << "'"));
+        return false;
       }
     } else {
       cli.targets.push_back(arg);
