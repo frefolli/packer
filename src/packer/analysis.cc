@@ -87,8 +87,9 @@ bool analyze_package(const packer::Host& host,
 }
 
 bool packer::analyze_packages(const packer::Host& host,
-    std::unordered_map<std::string, Package*>& packages,
-    std::unordered_map<std::string, Packerfile>& packerfile_index) {
+                              std::unordered_map<std::string, Package*>& packages,
+                              std::unordered_map<std::string, Packerfile>& packerfile_index,
+                              bool refresh, bool install) {
   bool ok = true;
   packages.clear();
   std::vector<std::string> scheduling_queue = {};
@@ -103,6 +104,8 @@ bool packer::analyze_packages(const packer::Host& host,
       ok = false;
       break;
     }
+    packages[package_id]->refresh_before_build = refresh;
+    packages[package_id]->install_after_build = install;
   }
   return ok;
 }

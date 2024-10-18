@@ -11,6 +11,10 @@ namespace packer::rpmbuild {
       std::filesystem::create_directories(source_dir);
     }
     std::string filepath = std::filesystem::path(MSG(homedir << "/" << package->locator.name << ".spec").str());
+    if (std::filesystem::exists(filepath) && !package->refresh_before_build) {
+      return filepath;
+    }
+
     auto buffer = MSG("");
     buffer << "AutoReq:        no" << std::endl;
     buffer << "Name:           " << package->locator.name << std::endl;
@@ -89,10 +93,11 @@ namespace packer::rpmbuild {
     }
     std::string url = MSG(package->locator.url << "/archive/refs/heads/master.tar.gz").str();
     std::string filepath = std::filesystem::path(MSG(homedir << "/" << package->locator.name <<".tar.gz").str());
-    if (!std::filesystem::exists(filepath)) {
-      if (!packer::download_file(url, filepath)) {
-        return std::nullopt;
-      }
+    if (std::filesystem::exists(filepath) && !package->refresh_before_build) {
+      return filepath;
+    }
+    if (!packer::download_file(url, filepath)) {
+      return std::nullopt;
     }
     return filepath;
   }
@@ -103,10 +108,11 @@ namespace packer::rpmbuild {
       std::filesystem::create_directories(source_dir);
     }
     std::string package_file = std::filesystem::path(MSG(homedir << "/" << package->locator.name << "-" << package->version << "-1.x86_64.rpm").str());
-    if (!std::filesystem::exists(package_file)) {
-      if (!packer::execute_shell_command(MSG("rpmbuild -bb " << spec_file).str())) {
-        return std::nullopt;
-      }
+    if (std::filesystem::exists(package_file) && !package->refresh_before_build) {
+      return package_file;
+    }
+    if (!packer::execute_shell_command(MSG("rpmbuild -bb " << spec_file).str())) {
+      return std::nullopt;
     }
     return package_file;
   }
@@ -127,10 +133,11 @@ namespace packer::makepkg {
     }
     std::string url = MSG(package->locator.url << "/archive/refs/heads/master.tar.gz").str();
     std::string filepath = std::filesystem::path(MSG(source_dir << "/" << package->locator.name <<".tar.gz").str());
-    if (!std::filesystem::exists(filepath)) {
-      if (!packer::download_file(url, filepath)) {
-        return std::nullopt;
-      }
+    if (std::filesystem::exists(filepath) && !package->refresh_before_build) {
+      return filepath;
+    }
+    if (!packer::download_file(url, filepath)) {
+      return std::nullopt;
     }
     return filepath;
   }
@@ -141,6 +148,10 @@ namespace packer::makepkg {
       std::filesystem::create_directories(pkgbuild_dir);
     }
     std::string filepath = std::filesystem::path(MSG(pkgbuild_dir << "/" << package->locator.name << ".pkgbuild").str());
+    if (std::filesystem::exists(filepath) && !package->refresh_before_build) {
+      return filepath;
+    }
+
     auto buffer = MSG("");
     buffer << "# Contributor & Maintainer: Refolli Francesco <francesco.refolli@gmail.com>" << std::endl;
     buffer << "pkgname=" << package->locator.name << "" << std::endl;
@@ -205,16 +216,17 @@ namespace packer::makepkg {
       std::filesystem::create_directories(build_dir);
     }
     std::string package_file = std::filesystem::path(MSG(build_dir << "/" << package->locator.name << "-" << package->version << "-1-x86_64.pkg.tar.zst").str());
-    if (!std::filesystem::exists(package_file)) {
-      if (!packer::execute_shell_command(MSG("ln -sf " << pkgbuild_file << " " << build_dir << "/PKGBUILD").str())) {
-        return std::nullopt;
-      }
-      if (!packer::execute_shell_command(MSG("ln -sf " << source_file << " " << build_dir <<  "/sources.tar.gz").str())) {
-        return std::nullopt;
-      }
-      if (!packer::execute_shell_command(MSG("makepkg --sign -D " << build_dir).str())) {
-        return std::nullopt;
-      }
+    if (std::filesystem::exists(package_file) && !package->refresh_before_build) {
+      return package_file;
+    }
+    if (!packer::execute_shell_command(MSG("ln -sf " << pkgbuild_file << " " << build_dir << "/PKGBUILD").str())) {
+      return std::nullopt;
+    }
+    if (!packer::execute_shell_command(MSG("ln -sf " << source_file << " " << build_dir <<  "/sources.tar.gz").str())) {
+      return std::nullopt;
+    }
+    if (!packer::execute_shell_command(MSG("makepkg -f --sign -D " << build_dir).str())) {
+      return std::nullopt;
     }
     return package_file;
   }

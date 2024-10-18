@@ -19,6 +19,9 @@ namespace packer {
 
     std::string build_script;
     std::string install_script;
+
+    bool install_after_build;
+    bool refresh_before_build;
   };
 }
 #endif//PACKER_PACKAGE

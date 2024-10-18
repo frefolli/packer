@@ -7,6 +7,7 @@ bool schedule_package(std::unordered_map<const packer::Package*, int64_t>& weigh
 
 bool schedule_dependencies(std::unordered_map<const packer::Package*, int64_t>& weights, packer::Package* package, int64_t& weight, const std::vector<packer::Package*>& dependencies) {
   for (packer::Package* dependency : dependencies) {
+    dependency->install_after_build = true;
     if (!schedule_package(weights, dependency)) {
       packer::throw_warning(MSG("couldn't compute weight of dependency '" << dependency->locator.id() << "' of '" << package->locator.id() << "'"));
       return false;

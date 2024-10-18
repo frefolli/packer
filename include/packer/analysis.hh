@@ -7,6 +7,7 @@
 namespace packer {
   bool analyze_packages(const packer::Host& host,
                         std::unordered_map<std::string, Package*>& packages,
-                        std::unordered_map<std::string, Packerfile>& packerfile_index);
+                        std::unordered_map<std::string, Packerfile>& packerfile_index,
+                        bool refresh, bool install);
 }
 #endif//PACKER_ANALYSIS
