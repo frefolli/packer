@@ -5,8 +5,8 @@
 #include <filesystem>
 #include <fstream>
 
-constexpr const char* REPOSITORY_DIRECTORY = "./repository/";
-constexpr const char* URL_BASE= "https://github.com/";
+std::string packer::REPOSITORY_DIRECTORY = "./repository";
+std::string packer::URL_BASE = "https://github.com";
 
 bool packer::load_from_file(Packerfile& packerfile, const std::string& filepath) {
   if (!std::filesystem::exists(filepath)) {
@@ -54,7 +54,7 @@ std::optional<packer::Locator> packer::parse_locator(const std::string& package_
     return std::nullopt;
 
   locator.url = MSG(URL_BASE << locator.id()).str();
-  std::string dir = MSG(REPOSITORY_DIRECTORY << locator.group).str();
+  std::string dir = MSG(REPOSITORY_DIRECTORY  << "/" << locator.group).str();
   std::filesystem::create_directories(dir);
   locator.path = MSG(dir << "/" << locator.name).str();
   return locator;

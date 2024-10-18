@@ -6,6 +6,8 @@
 #include <packer/host.hh>
 
 namespace packer {
+  extern std::string REPOSITORY_DIRECTORY;
+  extern std::string URL_BASE;
   bool load_from_file(Packerfile& packerfile, const std::string& filepath);
   bool dump_into_file(const Packerfile& packerfile, const std::string& filepath);
   std::optional<Locator> parse_locator(const std::string& package_id);
