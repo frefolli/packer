@@ -6,7 +6,11 @@
 
 namespace packer::rpmbuild {
   std::optional<std::string> craft_spec(const std::string& homedir, packer::Package* package) {
-    std::string filepath = std::filesystem::path(MSG(homedir << "/rpmbuild/SPECS/" << package->locator.name << ".spec").str());
+    std::string source_dir = std::filesystem::path(MSG(homedir << "/rpmbuild/SPECS/").str());
+    if (!std::filesystem::exists(source_dir)) {
+      std::filesystem::create_directories(source_dir);
+    }
+    std::string filepath = std::filesystem::path(MSG(homedir << "/" << package->locator.name << ".spec").str());
     auto buffer = MSG("");
     buffer << "AutoReq:        no" << std::endl;
     buffer << "Name:           " << package->locator.name << std::endl;
@@ -79,8 +83,12 @@ namespace packer::rpmbuild {
   }
 
   std::optional<std::string> download_source(const std::string& homedir, packer::Package* package) {
+    std::string source_dir = std::filesystem::path(MSG(homedir << "/rpmbuild/SOURCES").str());
+    if (!std::filesystem::exists(source_dir)) {
+      std::filesystem::create_directories(source_dir);
+    }
     std::string url = MSG(package->locator.url << "/archive/refs/heads/master.tar.gz").str();
-    std::string filepath = std::filesystem::path(MSG(homedir << "/rpmbuild/SOURCES/" << package->locator.name <<".tar.gz").str());
+    std::string filepath = std::filesystem::path(MSG(homedir << "/" << package->locator.name <<".tar.gz").str());
     if (!std::filesystem::exists(filepath)) {
       if (!packer::download_file(url, filepath)) {
         return std::nullopt;
@@ -90,7 +98,11 @@ namespace packer::rpmbuild {
   }
   
   std::optional<std::string> assemble_package(const std::string& homedir, const std::string& spec_file, packer::Package* package) {
-    std::string package_file = std::filesystem::path(MSG(homedir << "/rpmbuild/RPMS/x86_64/" << package->locator.name << "-" << package->version << "-1.x86_64.rpm").str());
+    std::string source_dir = std::filesystem::path(MSG(homedir << "/rpmbuild/RPMS/x86_64").str());
+    if (!std::filesystem::exists(source_dir)) {
+      std::filesystem::create_directories(source_dir);
+    }
+    std::string package_file = std::filesystem::path(MSG(homedir << "/" << package->locator.name << "-" << package->version << "-1.x86_64.rpm").str());
     if (!std::filesystem::exists(package_file)) {
       if (!packer::execute_shell_command(MSG("rpmbuild -bb " << spec_file).str())) {
         return std::nullopt;
@@ -109,8 +121,12 @@ namespace packer::rpmbuild {
 
 namespace packer::makepkg {
   std::optional<std::string> download_source(const std::string& homedir, packer::Package* package) {
+    std::string source_dir = std::filesystem::path(MSG(homedir << "/makepkg/SOURCES").str());
+    if (!std::filesystem::exists(source_dir)) {
+      std::filesystem::create_directories(source_dir);
+    }
     std::string url = MSG(package->locator.url << "/archive/refs/heads/master.tar.gz").str();
-    std::string filepath = std::filesystem::path(MSG(homedir << "/makepkg/SOURCES/" << package->locator.name <<".tar.gz").str());
+    std::string filepath = std::filesystem::path(MSG(source_dir << "/" << package->locator.name <<".tar.gz").str());
     if (!std::filesystem::exists(filepath)) {
       if (!packer::download_file(url, filepath)) {
         return std::nullopt;
@@ -120,7 +136,11 @@ namespace packer::makepkg {
   }
   
   std::optional<std::string> craft_pkgbuild(const std::string& homedir, packer::Package* package) {
-    std::string filepath = std::filesystem::path(MSG(homedir << "/makepkg/PKGBUILDS/" << package->locator.name << ".pkgbuild").str());
+    std::string pkgbuild_dir = std::filesystem::path(MSG(homedir << "/makepkg/PKGBUILDS").str());
+    if (!std::filesystem::exists(pkgbuild_dir)) {
+      std::filesystem::create_directories(pkgbuild_dir);
+    }
+    std::string filepath = std::filesystem::path(MSG(pkgbuild_dir << "/" << package->locator.name << ".pkgbuild").str());
     auto buffer = MSG("");
     buffer << "# Contributor & Maintainer: Refolli Francesco <francesco.refolli@gmail.com>" << std::endl;
     buffer << "pkgname=" << package->locator.name << "" << std::endl;
@@ -180,9 +200,12 @@ namespace packer::makepkg {
   }
 
   std::optional<std::string> assemble_package(const std::string& homedir, const std::string& pkgbuild_file, const std::string& source_file, packer::Package* package) {
-    std::string package_file = std::filesystem::path(MSG(package->locator.name << "-" << package->version << "-1-x86_64.pkg.tar.zst").str());
+    std::string build_dir = std::filesystem::path(MSG(homedir << "/makepkg/BUILDS").str());
+    if (!std::filesystem::exists(build_dir)) {
+      std::filesystem::create_directories(build_dir);
+    }
+    std::string package_file = std::filesystem::path(MSG(build_dir << "/" << package->locator.name << "-" << package->version << "-1-x86_64.pkg.tar.zst").str());
     if (!std::filesystem::exists(package_file)) {
-      std::string build_dir = std::filesystem::path(MSG(homedir << "/makepkg/BUILDS").str());
       if (!packer::execute_shell_command(MSG("ln -sf " << pkgbuild_file << " " << build_dir << "/PKGBUILD").str())) {
         return std::nullopt;
       }
