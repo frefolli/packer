@@ -157,10 +157,14 @@ namespace packer::makepkg {
     buffer << "sha256sums=('SKIP')" << std::endl;
     buffer << "build() {" << std::endl;
     buffer << "cd $pkgname-master" << std::endl;
+    buffer << "export PREFIX=/usr" << std::endl;
+    buffer << "export DESTDIR=$pkgdir" << std::endl;
     buffer << package->build_script << std::endl;
     buffer << "}" << std::endl;
     buffer << "package() {" << std::endl;
     buffer << "cd $pkgname-master" << std::endl;
+    buffer << "export PREFIX=/usr" << std::endl;
+    buffer << "export DESTDIR=$pkgdir" << std::endl;
     buffer << package->install_script << std::endl;
     buffer << "}" << std::endl;
     buffer << "options=(!debug)" << std::endl;
