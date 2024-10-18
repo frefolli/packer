@@ -6,11 +6,11 @@
 
 namespace packer::rpmbuild {
   std::optional<std::string> craft_spec(const std::string& homedir, packer::Package* package) {
-    std::string source_dir = std::filesystem::path(MSG(homedir << "/rpmbuild/SPECS/").str());
-    if (!std::filesystem::exists(source_dir)) {
-      std::filesystem::create_directories(source_dir);
+    std::string spec_dir = std::filesystem::path(MSG(homedir << "/rpmbuild/SPECS/").str());
+    if (!std::filesystem::exists(spec_dir)) {
+      std::filesystem::create_directories(spec_dir);
     }
-    std::string filepath = std::filesystem::path(MSG(homedir << "/" << package->locator.name << ".spec").str());
+    std::string filepath = std::filesystem::path(MSG(spec_dir << "/" << package->locator.name << ".spec").str());
     if (std::filesystem::exists(filepath) && !package->refresh_before_build) {
       return filepath;
     }
@@ -92,7 +92,7 @@ namespace packer::rpmbuild {
       std::filesystem::create_directories(source_dir);
     }
     std::string url = MSG(package->locator.url << "/archive/refs/heads/master.tar.gz").str();
-    std::string filepath = std::filesystem::path(MSG(homedir << "/" << package->locator.name <<".tar.gz").str());
+    std::string filepath = std::filesystem::path(MSG(source_dir << "/" << package->locator.name <<".tar.gz").str());
     if (std::filesystem::exists(filepath) && !package->refresh_before_build) {
       return filepath;
     }
