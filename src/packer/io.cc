@@ -53,7 +53,7 @@ std::optional<packer::Locator> packer::parse_locator(const std::string& package_
   if (token != nullptr)
     return std::nullopt;
 
-  locator.url = MSG(URL_BASE << locator.id()).str();
+  locator.url = MSG(URL_BASE << "/" << locator.id()).str();
   std::string dir = MSG(REPOSITORY_DIRECTORY  << "/" << locator.group).str();
   std::filesystem::create_directories(dir);
   locator.path = MSG(dir << "/" << locator.name).str();

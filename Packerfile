@@ -1,0 +1,14 @@
+version: 1.0.0
+license: GPL-3.0
+summary: Yet another rpmbuild/makepkg wrapper
+makedepends: meson make
+depends: wget yaml-cpp
+patches:
+  arch:
+    makedepends: gcc
+  fedora:
+    makedepends: yaml-cpp-devel gcc-c++
+build: |
+  make
+install: |
+  make install PREFIX=/usr
