@@ -232,6 +232,113 @@ namespace packer::makepkg {
   }
 }
 
+namespace packer::xbps_src {
+  std::optional<std::string> download_source(const std::string& homedir, packer::Package* package) {
+    std::string source_dir = std::filesystem::path(MSG(homedir << "/xbps/SOURCES").str());
+    if (!std::filesystem::exists(source_dir)) {
+      std::filesystem::create_directories(source_dir);
+    }
+    std::string url = MSG(package->locator.url << "/archive/refs/heads/master.tar.gz").str();
+    std::string filepath = std::filesystem::path(MSG(source_dir << "/" << package->locator.name <<".tar.gz").str());
+    if (std::filesystem::exists(filepath) && !package->refresh_before_build) {
+      return filepath;
+    }
+    if (!packer::download_file(url, filepath)) {
+      return std::nullopt;
+    }
+    return filepath;
+  }
+  
+  std::optional<std::string> craft_descriptor(const std::string& homedir, packer::Package* package) {
+    std::string descriptor_dir = std::filesystem::path(MSG(homedir << "/xbps/DESCRIPTORS").str());
+    if (!std::filesystem::exists(descriptor_dir)) {
+      std::filesystem::create_directories(descriptor_dir);
+    }
+    std::string filepath = std::filesystem::path(MSG(descriptor_dir << "/" << package->locator.name << ".descriptor").str());
+    if (std::filesystem::exists(filepath) && !package->refresh_before_build) {
+      return filepath;
+    }
+
+    auto buffer = MSG("");
+    buffer << "# Contributor & Maintainer: Refolli Francesco <francesco.refolli@gmail.com>" << std::endl;
+    buffer << "pkgname=" << package->locator.name << "" << std::endl;
+    buffer << "pkgver=" << package->version << "" << std::endl;
+    buffer << "pkgrel=1" << std::endl;
+    buffer << "pkgdesc='" << package->summary << "'" << std::endl;
+    buffer << "license=('" << package->license << "')" << std::endl;
+    buffer << "arch=('x86_64')" << std::endl;
+
+    if (!(package->build_packer_requirements.empty() && package->build_system_requirements.empty())) {
+      buffer << "makedepends=(";
+      for (packer::Package* dependency : package->build_packer_requirements) {
+        buffer << " '" << dependency->locator.name << "'";
+      }
+      for (std::string dependency : package->build_system_requirements) {
+        buffer << " '" << dependency << "'";
+      }
+      buffer << ")" << std::endl;
+    }
+
+    if (!(package->install_packer_requirements.empty() && package->install_system_requirements.empty())) {
+      buffer << "depends=(";
+      for (packer::Package* dependency : package->install_packer_requirements) {
+        buffer << " '" << dependency->locator.name << "'";
+      }
+      for (std::string dependency : package->install_system_requirements) {
+        buffer << " '" << dependency << "'";
+      }
+      buffer << ")" << std::endl;
+    }
+
+    buffer << "url=" << package->locator.url << "" << std::endl;
+    buffer << "source=('sources.tar.gz')" << std::endl;
+    buffer << "sha256sums=('SKIP')" << std::endl;
+    buffer << "build() {" << std::endl;
+    buffer << "cd $pkgname-master" << std::endl;
+    buffer << "export PREFIX=/usr" << std::endl;
+    buffer << "export DESTDIR=$pkgdir" << std::endl;
+    buffer << package->build_script << std::endl;
+    buffer << "}" << std::endl;
+    buffer << "package() {" << std::endl;
+    buffer << "cd $pkgname-master" << std::endl;
+    buffer << "export PREFIX=/usr" << std::endl;
+    buffer << "export DESTDIR=$pkgdir" << std::endl;
+    buffer << package->install_script << std::endl;
+    buffer << "}" << std::endl;
+    buffer << "options=(!debug)" << std::endl;
+
+    std::ofstream file (filepath);
+    if (!file.good()) {
+      throw_warning(MSG("unable to open '" << filepath << "' spec-file for writing"));
+      return std::nullopt;
+    }
+    file << buffer.str();
+    file.close();
+    return filepath;
+  }
+
+  std::optional<std::string> assemble_package(const std::string& homedir, const std::string& pkgbuild_file, const std::string& source_file, packer::Package* package) {
+    std::string build_dir = std::filesystem::path(MSG(homedir << "/xbps/BUILDS").str());
+    if (!std::filesystem::exists(build_dir)) {
+      std::filesystem::create_directories(build_dir);
+    }
+    std::string package_file = std::filesystem::path(MSG(build_dir << "/" << package->locator.name << "-" << package->version << "-1-x86_64.pkg.tar.zst").str());
+    if (std::filesystem::exists(package_file) && !package->refresh_before_build) {
+      return package_file;
+    }
+    if (!packer::execute_shell_command(MSG("ln -sf " << pkgbuild_file << " " << build_dir << "/PKGBUILD").str())) {
+      return std::nullopt;
+    }
+    if (!packer::execute_shell_command(MSG("ln -sf " << source_file << " " << build_dir <<  "/sources.tar.gz").str())) {
+      return std::nullopt;
+    }
+    if (!packer::execute_shell_command(MSG("xbps -f --sign -D " << build_dir).str())) {
+      return std::nullopt;
+    }
+    return package_file;
+  }
+}
+
 std::optional<std::string> packer::craft_package(const std::string& homedir, packaging_t packaging, Package* package) {
   switch (packaging) {
     case packer::RPMBUILD:
@@ -277,7 +384,25 @@ std::optional<std::string> packer::craft_package(const std::string& homedir, pac
         }
         return abs_package;
       }; break;
-    default: raise_error(1, MSG("packaging := " << packaging));
+    case packer::XBPS_SRC:
+      {
+        std::optional<std::string> pkgbuild_file = packer::xbps_src::craft_descriptor(homedir, package);
+        if (!pkgbuild_file.has_value()) {
+          throw_warning(MSG("unable to craft pkgbuild file for '" << package->locator.id() << "' package"));
+          return std::nullopt;
+        }
+        std::optional<std::string> source_file = packer::xbps_src::download_source(homedir, package);
+        if (!source_file.has_value()) {
+          throw_warning(MSG("unable to download source for '" << package->locator.id() << "' package"));
+          return std::nullopt;
+        }
+        std::optional<std::string> abs_package = packer::xbps_src::assemble_package(homedir, pkgbuild_file.value(), source_file.value(), package);
+        if (!abs_package.has_value()) {
+          throw_warning(MSG("unable to assemble and sign xbps package for '" << package->locator.id() << "' package"));
+          return std::nullopt;
+        }
+        return abs_package;
+      }; break;
   }
   packer::unreachable();
 }

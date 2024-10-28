@@ -145,11 +145,13 @@ std::ostream& packer::operator<<(std::ostream& out, const packer::Host& host) {
     case packer::YUM: out << YUM_PATH << std::endl; break;
     case packer::YAY: out << YAY_PATH << std::endl; break;
     case packer::PACMAN: out << PACMAN_PATH << std::endl; break;
+    case packer::XBPS: out << XBPS_INSTALL_PATH << std::endl; break;
   }
   out << "packaging: ";
   switch (host.packaging) {
     case packer::RPMBUILD: out << RPMBUILD_PATH << std::endl; break;
     case packer::MAKEPKG: out << MAKEPKG_PATH << std::endl; break;
+    case packer::XBPS_SRC: out << XBPS_SRC_PATH << std::endl; break;
   }
   out << "homedir: " << host.homedir;
   return out;

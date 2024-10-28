@@ -52,6 +52,8 @@ std::optional<packer::package_manager_t> packer::identify_package_manager() {
     return packer::YAY;
   if (std::filesystem::exists(packer::PACMAN_PATH))
     return packer::PACMAN;
+  if (std::filesystem::exists(packer::XBPS_INSTALL_PATH))
+    return packer::XBPS;
   return std::nullopt;
 }
 
@@ -60,6 +62,8 @@ std::optional<packer::packaging_t> packer::identify_packaging() {
     return packer::MAKEPKG;
   if (std::filesystem::exists(packer::RPMBUILD_PATH))
     return packer::RPMBUILD;
+  if (std::filesystem::exists(packer::XBPS_SRC_PATH))
+    return packer::XBPS_SRC;
   return std::nullopt;
 }
 
