@@ -11,6 +11,7 @@ namespace packer {
   constexpr const char* RPMBUILD_PATH = "/usr/bin/rpmbuild";
   constexpr const char* MAKEPKG_PATH = "/usr/bin/makepkg";
   constexpr const char* XBPS_SRC_PATH = "/usr/sbin/xbps-src";
+  constexpr const char* XBPS_RINDEX_PATH = "/usr/sbin/xbps-rindex";
 
   std::optional<std::string> craft_package(const std::string& homedir, packaging_t packaging, Package* package);
 }

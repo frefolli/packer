@@ -30,7 +30,7 @@ bool packer::install_packer_package(packer::package_manager_t package_manager, s
     case packer::YUM: buffer << "sudo " << YUM_PATH << " install"; break;
     case packer::PACMAN: buffer << PACMAN_PATH << " -U"; break;
     case packer::YAY: buffer << YAY_PATH << " -U"; break;
-    case packer::XBPS: buffer << "sudo " << XBPS_INSTALL_PATH << " --repository=~/xbps-src"; break;
+    case packer::XBPS: buffer << "sudo " << XBPS_INSTALL_PATH << " --repository=~/xbps-src/REPOSITORY"; break;
   }
   buffer << " " << package_path;
   return packer::execute_shell_command(buffer.str());
@@ -46,9 +46,11 @@ bool packer::filter_installed_packages(packer::package_manager_t package_manager
     case packer::YUM: buffer << YUM_PATH << " info "; break;
     case packer::YAY: buffer << YAY_PATH << " -Qi "; break;
     case packer::PACMAN: buffer << PACMAN_PATH << " -Qi "; break;
-    case packer::XBPS: buffer << XBPS_QUERY_PATH << " -s "; break;
+    case packer::XBPS: buffer << XBPS_QUERY_PATH; break;
   }
   for (const std::string& package : maybe_installed_packages) {
+    if (package_manager == XBPS)
+      buffer << " -S";
     buffer << " " << package;
   }
   switch (package_manager) {
@@ -64,7 +66,7 @@ bool packer::filter_installed_packages(packer::package_manager_t package_manager
   }
   std::regex regex;
   if (package_manager == XBPS)
-    regex = std::regex("pkgname\\s+:\\s+([a-zA-Z_0-9-]+)");
+    regex = std::regex("pkgname:\\s+([a-zA-Z_0-9-]+)");
   else
     regex = std::regex("Name\\s+:\\s+([a-zA-Z_0-9-]+)");
   auto matches_begin = std::sregex_iterator(maybe_stdout.value().begin(), maybe_stdout.value().end(), regex);
